@@ -184,22 +184,26 @@ final class Post extends Model
     }
 
     /**
-     * @return array<int, array<string, string>>
+     * @return array{items: array<int, array<string, string>>, total: int}
      */
-    public static function previewCardsForCategory(int $categoryId, string $sort = 'published_at', int $perPage = 12): array
+    public static function previewCardsForCategory(int $categoryId, string $sort = 'published_at', int $perPage = 12, int $page = 1): array
     {
         $orderColumn = CategoryPostSortKey::fromNullable($sort)->value;
+        $page = max(1, $page);
 
         return CacheManager::remember(
-            "category.posts.{$categoryId}.{$orderColumn}.{$perPage}",
-            static function () use ($categoryId, $orderColumn, $perPage): array {
-                return self::query()
+            "category.posts.{$categoryId}.{$orderColumn}.{$perPage}.{$page}",
+            static function () use ($categoryId, $orderColumn, $perPage, $page): array {
+                $baseQuery = self::query()
                     ->select(['posts.slug', 'posts.image', 'posts.title', 'posts.description', 'posts.views', 'posts.published_at'])
                     ->join('post_category', 'post_category.post_id', '=', 'posts.id')
-                    ->where('post_category.category_id', $categoryId)
+                    ->where('post_category.category_id', $categoryId);
+
+                $total = (clone $baseQuery)->count('posts.id');
+                $items = $baseQuery
                     ->orderByDesc("posts.{$orderColumn}")
                     ->orderByDesc('posts.id')
-                    ->limit($perPage)
+                    ->forPage($page, $perPage)
                     ->get()
                     ->map(static fn (self $post): array => [
                         'href' => "/post/{$post->slug}",
@@ -209,6 +213,11 @@ final class Post extends Model
                         'meta' => trim(sprintf('%s • %s views', $post->published_at?->format('M j, Y') ?? '', number_format((int) $post->views))),
                     ])
                     ->all();
+
+                return [
+                    'items' => $items,
+                    'total' => $total,
+                ];
             },
             CacheManager::ttl('category_posts', 600),
         );

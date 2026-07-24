@@ -38,15 +38,22 @@ final class CategoryController extends Controller
             }
 
             $sort = $this->currentSort();
-            $posts = $this->categoryPostsFromDatabase($category->id, $sort);
+            $currentPage = $this->currentPage();
+            $postPage = $this->categoryPostsFromDatabase($category->id, $sort, $currentPage);
 
             return $this->render('category/show.tpl', [
                 'pageTitle' => $category->name,
-                'category' => $this->mapCategory($category, $posts),
+                'category' => $this->mapCategory($category, $postPage['total']),
                 'sortOptions' => $this->categoryPostSorter->options($slug),
                 'currentSort' => $sort,
-                'posts' => $posts,
-                'pagination' => $this->categoryPaginator->build($slug),
+                'posts' => $postPage['items'],
+                'pagination' => $this->categoryPaginator->build(
+                    $slug,
+                    $currentPage,
+                    $postPage['total'],
+                    $this->postsPerPage,
+                    ['sort' => $sort],
+                ),
             ]);
         } catch (Throwable $exception) {
             return $this->handleError(ApplicationError::CATEGORY_UNAVAILABLE, $exception);
@@ -58,34 +65,43 @@ final class CategoryController extends Controller
         return $this->categoryPostSorter->current($_GET['sort'] ?? null);
     }
 
+    private function currentPage(): int
+    {
+        $page = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT);
+
+        return $page !== false && $page > 0 ? $page : 1;
+    }
+
     private function categoryFromDatabase(string $slug): ?Category
     {
         return Category::findBySlugForPage($slug);
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return array{items: array<int, array<string, mixed>>, total: int}
      */
-    private function categoryPostsFromDatabase(int $categoryId, string $sort): array
+    private function categoryPostsFromDatabase(int $categoryId, string $sort, int $page): array
     {
-        return array_map(function (array $post): array {
+        $postPage = Post::previewCardsForCategory($categoryId, $sort, $this->postsPerPage, $page);
+        $postPage['items'] = array_map(function (array $post): array {
             $post['image'] = $this->responsiveImageService->make($post['image'], 'category_card');
 
             return $post;
-        }, Post::previewCardsForCategory($categoryId, $sort, $this->postsPerPage));
+        }, $postPage['items']);
+
+        return $postPage;
     }
 
     /**
-     * @param array<int, array<string, string>> $posts
      * @return array<string, mixed>
      */
-    private function mapCategory(Category $category, array $posts): array
+    private function mapCategory(Category $category, int $totalArticles): array
     {
         return [
             'name' => $category->name,
             'slug' => $category->slug,
             'description' => $category->description,
-            'articleCount' => count($posts),
+            'articleCount' => $totalArticles,
         ];
     }
 

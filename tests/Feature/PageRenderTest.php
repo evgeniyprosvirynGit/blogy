@@ -73,6 +73,30 @@ it('renders the category page with sorting controls and article cards', function
         ->toContain('/post/editorial-ux-patterns');
 });
 
+it('renders real pagination links on category pages', function (): void {
+    $_GET['page'] = '2';
+    $_GET['sort'] = 'published_at';
+
+    $controller = new CategoryController(
+        testView(),
+        testErrorHandler(),
+        testResponsiveImageService(),
+        2,
+        testCategoryPostSorter(),
+        testCategoryPaginator(),
+    );
+
+    $html = $controller->show('design-systems');
+
+    unset($_GET['page'], $_GET['sort']);
+
+    expect($html)
+        ->toContain('/category/design-systems?sort=published_at&amp;page=1')
+        ->toContain('/category/design-systems?sort=published_at&amp;page=2')
+        ->toContain('/post/meaningful-card-layouts')
+        ->toContain('/post/sort-controls');
+});
+
 it('renders the article page with full content and related articles', function (): void {
     $controller = new PostController(testView(), testErrorHandler(), testResponsiveImageService(), testRelatedArticlesProvider());
 

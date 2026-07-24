@@ -26,7 +26,8 @@ it('caches category post previews by sort', function (): void {
 
     $second = Post::previewCardsForCategory(3, 'views', 12);
 
-    expect($first)->toHaveCount(3)
+    expect($first['total'])->toBe(3)
+        ->and($first['items'])->toHaveCount(3)
         ->and($second)->toBe($first);
 });
 
