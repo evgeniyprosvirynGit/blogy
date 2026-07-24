@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@source "../../templates";
+@source "../../src";
+@source "../../public";
+
+@theme {
+    --font-sans: "Manrope", "Segoe UI", sans-serif;
+    --color-ink: oklch(0.24 0.03 253.85);
+    --color-paper: oklch(0.98 0.01 95.1);
+    --color-accent: oklch(0.72 0.16 55.24);
+}
+
+html {
+    color: var(--color-ink);
+    background-color: var(--color-paper);
+}
+
+body {
+    min-height: 100vh;
+}
