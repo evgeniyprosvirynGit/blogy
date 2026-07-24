@@ -37,131 +37,14 @@
                 {/foreach}
             </section>
         {else}
-            <section class="mt-12 space-y-12">
-                {assign var=demoCategories value=[
-                    [
-                        'name' => 'Design Systems',
-                        'slug' => 'design-systems',
-                        'description' => 'Layouts, UI patterns, and content presentation ideas for structured editorial pages.',
-                        'posts' => [
-                            [
-                                'href' => '/post/category-1-article-1',
-                                'image' => '/images/blog.jpg',
-                                'title' => 'Category 1 Article 1',
-                                'meta' => 'Demo Post 1',
-                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
-                            ],
-                            [
-                                'href' => '/post/category-1-article-2',
-                                'image' => '/images/blogs.jpg',
-                                'title' => 'Category 1 Article 2',
-                                'meta' => 'Demo Post 2',
-                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
-                            ],
-                            [
-                                'href' => '/post/category-1-article-3',
-                                'image' => '/images/images.jpeg',
-                                'title' => 'Category 1 Article 3',
-                                'meta' => 'Demo Post 3',
-                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
-                            ]
-                        ]
-                    ],
-                    [
-                        'name' => 'Frontend Engineering',
-                        'slug' => 'frontend-engineering',
-                        'description' => 'Implementation notes, component patterns, and browser-facing engineering articles.',
-                        'posts' => [
-                            [
-                                'href' => '/post/category-2-article-1',
-                                'image' => '/images/blogs.jpg',
-                                'title' => 'Category 2 Article 1',
-                                'meta' => 'Demo Post 1',
-                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
-                            ],
-                            [
-                                'href' => '/post/category-2-article-2',
-                                'image' => '/images/images.jpeg',
-                                'title' => 'Category 2 Article 2',
-                                'meta' => 'Demo Post 2',
-                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
-                            ],
-                            [
-                                'href' => '/post/category-2-article-3',
-                                'image' => '/images/blog.jpg',
-                                'title' => 'Category 2 Article 3',
-                                'meta' => 'Demo Post 3',
-                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
-                            ]
-                        ]
-                    ],
-                    [
-                        'name' => 'Content Strategy',
-                        'slug' => 'content-strategy',
-                        'description' => 'Editorial structure, archive management, and article discovery patterns.',
-                        'posts' => [
-                            [
-                                'href' => '/post/category-3-article-1',
-                                'image' => '/images/images.jpeg',
-                                'title' => 'Category 3 Article 1',
-                                'meta' => 'Demo Post 1',
-                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
-                            ],
-                            [
-                                'href' => '/post/category-3-article-2',
-                                'image' => '/images/blog.jpg',
-                                'title' => 'Category 3 Article 2',
-                                'meta' => 'Demo Post 2',
-                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
-                            ],
-                            [
-                                'href' => '/post/category-3-article-3',
-                                'image' => '/images/blogs.jpg',
-                                'title' => 'Category 3 Article 3',
-                                'meta' => 'Demo Post 3',
-                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
-                            ]
-                        ]
-                    ],
-                    [
-                        'name' => 'Product Thinking',
-                        'slug' => 'product-thinking',
-                        'description' => 'Decision-making, product communication, and feature-shaping write-ups.',
-                        'posts' => [
-                            [
-                                'href' => '/post/category-4-article-1',
-                                'image' => '/images/blog.jpg',
-                                'title' => 'Category 4 Article 1',
-                                'meta' => 'Demo Post 1',
-                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
-                            ],
-                            [
-                                'href' => '/post/category-4-article-2',
-                                'image' => '/images/blogs.jpg',
-                                'title' => 'Category 4 Article 2',
-                                'meta' => 'Demo Post 2',
-                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
-                            ],
-                            [
-                                'href' => '/post/category-4-article-3',
-                                'image' => '/images/images.jpeg',
-                                'title' => 'Category 4 Article 3',
-                                'meta' => 'Demo Post 3',
-                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
-                            ]
-                        ]
-                    ]
-                ]}
-
-                {foreach from=$demoCategories item=category}
-                    {include
-                        file="partials/category-section.tpl"
-                        category=$category
-                        posts=$category.posts
-                        eyebrow='Category'
-                        linkLabel='Посмотреть все'
-                    }
-                {/foreach}
+            <section class="mt-12">
+                <div class="rounded-[1.75rem] border border-slate-200 bg-white px-6 py-10 text-center shadow-sm sm:px-8">
+                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Homepage status</p>
+                    <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-900">{$emptyState.title}</h2>
+                    <p class="mx-auto mt-4 max-w-2xl text-base leading-8 text-slate-600">
+                        {$emptyState.message}
+                    </p>
+                </div>
             </section>
         {/if}
     </main>

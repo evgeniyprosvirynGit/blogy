@@ -6,15 +6,16 @@
             <header class="article-page__hero rounded-[2rem] px-6 py-10 sm:px-8 sm:py-12">
                 <div class="space-y-5">
                     <div class="flex flex-wrap items-center gap-3 text-sm">
-                        <a
-                            href="/category/{$post.category.slug}"
-                            class="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 font-semibold text-amber-700"
-                        >
-                            {$post.category.name}
-                        </a>
+                        {if $post.category}
+                            <a
+                                href="/category/{$post.category.slug}"
+                                class="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 font-semibold text-amber-700"
+                            >
+                                {$post.category.name}
+                            </a>
+                        {/if}
                         <span class="text-slate-400">{$post.publishedAt}</span>
                         <span class="text-slate-400">{$post.views} views</span>
-                        <span class="text-slate-400">{$post.readTime}</span>
                     </div>
 
                     <h1 class="max-w-3xl text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
@@ -24,16 +25,6 @@
                     <p class="max-w-2xl text-lg leading-8 text-slate-600">
                         {$post.description}
                     </p>
-
-                    <div class="flex items-center gap-4 border-t border-slate-200 pt-5">
-                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">
-                            {$post.author|substr:0:1}
-                        </span>
-                        <div>
-                            <p class="font-semibold text-slate-900">{$post.author}</p>
-                            <p class="text-sm text-slate-500">{$post.authorRole}</p>
-                        </div>
-                    </div>
                 </div>
             </header>
 
@@ -46,15 +37,10 @@
             </div>
 
             <div class="article-page__content mt-8 rounded-[2rem] border border-slate-200 bg-white px-6 py-8 shadow-sm sm:px-8 sm:py-10">
-                {foreach from=$post.content item=section}
-                    <section class="space-y-4">
-                        <h2 class="text-2xl font-bold tracking-tight text-slate-900">{$section.heading}</h2>
-                        {foreach from=$section.paragraphs item=paragraph}
-                            <p class="text-base leading-8 text-slate-600">
-                                {$paragraph}
-                            </p>
-                        {/foreach}
-                    </section>
+                {foreach from=$post.paragraphs item=paragraph}
+                    <p class="text-base leading-8 text-slate-600">
+                        {$paragraph}
+                    </p>
                 {/foreach}
             </div>
         </article>

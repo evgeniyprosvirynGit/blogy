@@ -22,5 +22,9 @@ return [
             'compile' => $basePath . '/storage/smarty/compile',
             'cache' => $basePath . '/storage/smarty/cache',
         ],
+        'logs' => [
+            'error' => $_ENV['ERROR_LOG_PATH'] ?? $_SERVER['ERROR_LOG_PATH'] ?? $basePath . '/storage/logs/error.log',
+            'application' => $_ENV['APPLICATION_LOG_PATH'] ?? $_SERVER['APPLICATION_LOG_PATH'] ?? $basePath . '/storage/logs/application.log',
+        ],
     ],
 ];

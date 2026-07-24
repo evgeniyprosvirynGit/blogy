@@ -23,6 +23,7 @@ final class CreatePostsTable extends AbstractMigration
             ->addIndex(['slug'], ['unique' => true])
             ->addIndex(['views'])
             ->addIndex(['published_at'])
+            ->addIndex(['published_at', 'id'])
             ->create();
     }
 }

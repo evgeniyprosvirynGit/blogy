@@ -4,14 +4,26 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Classes\Errors\Contracts\ErrorHandlerInterface;
+use App\Classes\Errors\Enums\ApplicationError;
+use Throwable;
+
 abstract class Controller
 {
-    public function __construct(protected View $view)
+    public function __construct(
+        protected View $view,
+        private readonly ErrorHandlerInterface $errorHandler,
+    )
     {
     }
 
     protected function render(string $template, array $data = []): string
     {
         return $this->view->render($template, $data);
+    }
+
+    protected function handleError(ApplicationError $error, ?Throwable $exception = null): string
+    {
+        return $this->errorHandler->handle($error, $exception);
     }
 }

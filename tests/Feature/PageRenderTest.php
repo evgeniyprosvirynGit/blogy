@@ -6,8 +6,12 @@ use App\Controllers\CategoryController;
 use App\Controllers\HomeController;
 use App\Controllers\PostController;
 
+beforeEach(function (): void {
+    testDatabase();
+});
+
 it('renders the homepage with seeded categories and posts', function (): void {
-    $controller = new HomeController(testView());
+    $controller = new HomeController(testView(), testErrorHandler());
 
     $html = $controller->index();
 
@@ -19,8 +23,21 @@ it('renders the homepage with seeded categories and posts', function (): void {
         ->toContain('/post/building-a-category-page');
 });
 
+it('renders an empty state on homepage when there are no categories', function (): void {
+    \App\Models\Post::query()->delete();
+    \App\Models\Category::query()->delete();
+
+    $controller = new HomeController(testView(), testErrorHandler());
+
+    $html = $controller->index();
+
+    expect($html)
+        ->toContain('No categories published yet')
+        ->toContain('The homepage is connected to the database, but no categories are available for display yet.');
+});
+
 it('renders the category page with sorting controls and article cards', function (): void {
-    $controller = new CategoryController(testView());
+    $controller = new CategoryController(testView(), testErrorHandler());
 
     $html = $controller->show('design-systems');
 
@@ -29,18 +46,39 @@ it('renders the category page with sorting controls and article cards', function
         ->toContain('By publication date')
         ->toContain('By views')
         ->toContain('Building a category page that scales with editorial content')
+        ->toContain('Jul 21, 2026')
         ->toContain('/post/editorial-ux-patterns');
 });
 
 it('renders the article page with full content and related articles', function (): void {
-    $controller = new PostController(testView());
+    $controller = new PostController(testView(), testErrorHandler());
 
     $html = $controller->show('building-a-category-page');
 
     expect($html)
         ->toContain('Building a category page that scales with editorial content')
-        ->toContain('James Carter')
-        ->toContain('Why the article page matters')
+        ->toContain('July 21, 2026')
+        ->toContain('The article page is where the visual language of the blog either holds together or falls apart.')
         ->toContain('3 similar articles')
         ->toContain('Editorial UX patterns for article archives');
+});
+
+it('renders a not found page when category does not exist', function (): void {
+    $controller = new CategoryController(testView(), testErrorHandler());
+
+    $html = $controller->show('missing-category');
+
+    expect($html)
+        ->toContain('Category not found')
+        ->toContain('The requested category does not exist or has been removed.');
+});
+
+it('renders a not found page when article does not exist', function (): void {
+    $controller = new PostController(testView(), testErrorHandler());
+
+    $html = $controller->show('missing-article');
+
+    expect($html)
+        ->toContain('Article not found')
+        ->toContain('The requested article does not exist or has been removed.');
 });

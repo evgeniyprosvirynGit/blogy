@@ -5,6 +5,9 @@ declare(strict_types=1);
 use App\Controllers\HomeController;
 use App\Controllers\CategoryController;
 use App\Controllers\PostController;
+use App\Classes\Errors\Enums\ApplicationError;
+use App\Classes\Errors\FileErrorLogger;
+use App\Classes\Errors\TemplateErrorHandler;
 use App\Core\Database;
 use App\Core\Env;
 use App\Core\Router;
@@ -24,13 +27,19 @@ date_default_timezone_set($_ENV['APP_TIMEZONE'] ?? $_SERVER['APP_TIMEZONE'] ?? '
 Database::boot($databaseConfig);
 
 $view = new View($appConfig);
-$homeController = new HomeController($view);
-$categoryController = new CategoryController($view);
-$postController = new PostController($view);
+$errorLogger = new FileErrorLogger(
+    $appConfig['paths']['logs']['error'],
+    $appConfig['paths']['logs']['application'],
+);
+$errorHandler = new TemplateErrorHandler($view, $errorLogger);
+$homeController = new HomeController($view, $errorHandler);
+$categoryController = new CategoryController($view, $errorHandler);
+$postController = new PostController($view, $errorHandler);
 $router = new Router();
 
 $router->get('/', static fn (): string => $homeController->index());
 $router->get('/category/{slug}', static fn (string $slug): string => $categoryController->show($slug));
 $router->get('/post/{slug}', static fn (string $slug): string => $postController->show($slug));
+$router->fallback(static fn (): string => $errorHandler->handle(ApplicationError::ROUTE_NOT_FOUND));
 
 echo $router->dispatch($_SERVER['REQUEST_METHOD'] ?? 'GET', $_SERVER['REQUEST_URI'] ?? '/');

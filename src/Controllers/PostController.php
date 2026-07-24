@@ -4,173 +4,57 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Classes\Errors\Enums\ApplicationError;
 use App\Core\Controller;
-use App\Support\BlogDemoData;
+use App\Models\Post;
+use Throwable;
 
 final class PostController extends Controller
 {
     public function show(string $slug): string
     {
-        $post = $this->demoPost($slug);
+        try {
+            $post = Post::findBySlugForArticlePage($slug);
 
-        return $this->render('post/show.tpl', [
-            'pageTitle' => $post['title'],
-            'post' => $post,
-            'relatedPosts' => $this->relatedPosts($slug),
-        ]);
+            if ($post === null) {
+                return $this->handleError(ApplicationError::ARTICLE_NOT_FOUND);
+            }
+
+            $relatedPosts = Post::relatedPreviewCards(
+                $post->categories->pluck('id')->all(),
+                $post->id,
+            );
+
+            return $this->render('post/show.tpl', [
+                'pageTitle' => $post->title,
+                'post' => [
+                    'title' => $post->title,
+                    'category' => $post->categories->isNotEmpty()
+                        ? [
+                            'name' => $post->categories->first()->name,
+                            'slug' => $post->categories->first()->slug,
+                        ]
+                        : null,
+                    'image' => $post->image,
+                    'description' => $post->description,
+                    'publishedAt' => $post->published_at?->format('F j, Y') ?? '',
+                    'views' => number_format((int) $post->views),
+                    'paragraphs' => $this->articleParagraphs((string) $post->content),
+                ],
+                'relatedPosts' => $relatedPosts,
+            ]);
+        } catch (Throwable $exception) {
+            return $this->handleError(ApplicationError::ARTICLE_UNAVAILABLE, $exception);
+        }
     }
 
     /**
-     * @return array{
-     *   title: string,
-     *   slug: string,
-     *   category: array{name: string, slug: string},
-     *   image: string,
-     *   description: string,
-     *   author: string,
-     *   authorRole: string,
-     *   publishedAt: string,
-     *   views: string,
-     *   readTime: string,
-     *   content: array<int, array{heading: string, paragraphs: array<int, string>}>
-     * }
+     * @return array<int, string>
      */
-    private function demoPost(string $slug): array
+    private function articleParagraphs(string $content): array
     {
-        foreach (BlogDemoData::posts() as $post) {
-            if ($post['slug'] !== $slug) {
-                continue;
-            }
+        $paragraphs = preg_split("/\n\s*\n/", trim($content)) ?: [];
 
-            return [
-                'title' => $post['title'],
-                'slug' => $post['slug'],
-                'category' => [
-                    'name' => 'Design Systems',
-                    'slug' => 'design-systems',
-                ],
-                'image' => $post['image'],
-                'description' => $post['description'],
-                'author' => 'James Carter',
-                'authorRole' => 'Editorial Lead',
-                'publishedAt' => date('F j, Y', strtotime($post['published_at'])),
-                'views' => number_format($post['views']),
-                'readTime' => '6 min read',
-                'content' => [
-                    [
-                        'heading' => 'Why the article page matters',
-                        'paragraphs' => [
-                            'The article page is where the visual language of the blog either holds together or falls apart. It needs enough structure to support long-form reading without turning into a wall of text.',
-                            'For this layout the goal is straightforward: keep the article readable, preserve a strong headline hierarchy, and make adjacent content discoverable without distracting from the main body.',
-                        ],
-                    ],
-                    [
-                        'heading' => 'A readable content rhythm',
-                        'paragraphs' => [
-                            'The content column should stay restrained in width, with enough whitespace around paragraphs and headings to maintain pace. Supporting metadata belongs near the title, not scattered across the page.',
-                            'Images, descriptions, and article sections should feel related rather than stacked mechanically. That means consistent spacing, clear breaks, and enough contrast between utility information and narrative content.',
-                        ],
-                    ],
-                    [
-                        'heading' => 'Related content should stay secondary',
-                        'paragraphs' => [
-                            'The related articles block exists to extend the reading journey, not to compete with the article itself. Three concise cards are enough for a clean handoff after the main story ends.',
-                            'This keeps the page useful as both a reading experience and a discovery surface while avoiding the clutter of a full archive feed under every post.',
-                        ],
-                    ],
-                ],
-            ];
-        }
-
-        return [
-            'title' => $this->titleFromSlug($slug),
-            'slug' => $slug,
-            'category' => [
-                'name' => 'Design Systems',
-                'slug' => 'design-systems',
-            ],
-            'image' => $this->imageFromSlug($slug),
-            'description' => 'A full article layout with metadata, lead text, structured content blocks, and a related articles section.',
-            'author' => 'James Carter',
-            'authorRole' => 'Editorial Lead',
-            'publishedAt' => 'July 21, 2026',
-            'views' => '2,430',
-            'readTime' => '6 min read',
-            'content' => [
-                [
-                    'heading' => 'Why the article page matters',
-                    'paragraphs' => [
-                        'The article page is where the visual language of the blog either holds together or falls apart. It needs enough structure to support long-form reading without turning into a wall of text.',
-                        'For this layout the goal is straightforward: keep the article readable, preserve a strong headline hierarchy, and make adjacent content discoverable without distracting from the main body.',
-                    ],
-                ],
-                [
-                    'heading' => 'A readable content rhythm',
-                    'paragraphs' => [
-                        'The content column should stay restrained in width, with enough whitespace around paragraphs and headings to maintain pace. Supporting metadata belongs near the title, not scattered across the page.',
-                        'Images, descriptions, and article sections should feel related rather than stacked mechanically. That means consistent spacing, clear breaks, and enough contrast between utility information and narrative content.',
-                    ],
-                ],
-                [
-                    'heading' => 'Related content should stay secondary',
-                    'paragraphs' => [
-                        'The related articles block exists to extend the reading journey, not to compete with the article itself. Three concise cards are enough for a clean handoff after the main story ends.',
-                        'This keeps the page useful as both a reading experience and a discovery surface while avoiding the clutter of a full archive feed under every post.',
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @return array<int, array{
-     *   href: string,
-     *   image: string,
-     *   title: string,
-     *   meta: string,
-     *   description: string
-     * }>
-     */
-    private function relatedPosts(string $currentSlug): array
-    {
-        $posts = [];
-
-        foreach (BlogDemoData::posts() as $post) {
-            if ($post['slug'] === $currentSlug) {
-                continue;
-            }
-
-            $posts[] = [
-                'href' => "/post/{$post['slug']}",
-                'image' => $post['image'],
-                'title' => $post['title'],
-                'meta' => 'Related article',
-                'description' => 'A short follow-up article suggestion placed below the main story for further reading.',
-            ];
-        }
-
-        return array_slice($posts, 0, 3);
-    }
-
-    private function titleFromSlug(string $slug): string
-    {
-        return match ($slug) {
-            'building-a-category-page' => 'Building a category page that scales with editorial content',
-            'editorial-ux-patterns' => 'Editorial UX patterns for article archives',
-            'meaningful-card-layouts' => 'Meaningful card layouts for content-heavy pages',
-            'improving-category-navigation' => 'Improving category navigation with simple hierarchy',
-            'archive-pagination' => 'Archive pagination patterns that stay readable',
-            'sort-controls' => 'Sort controls that do not dominate the page',
-            default => ucwords(str_replace('-', ' ', $slug)),
-        };
-    }
-
-    private function imageFromSlug(string $slug): string
-    {
-        return match ($slug) {
-            'editorial-ux-patterns', 'improving-category-navigation' => '/images/blogs.jpg',
-            'meaningful-card-layouts', 'sort-controls' => '/images/images.jpeg',
-            default => '/images/blog.jpg',
-        };
+        return array_values(array_filter(array_map('trim', $paragraphs)));
     }
 }

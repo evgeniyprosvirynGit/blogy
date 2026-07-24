@@ -4,51 +4,70 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Classes\Errors\Enums\ApplicationError;
+use App\Models\Category;
+use App\Models\Post;
 use App\Core\Controller;
-use App\Support\BlogDemoData;
+use Illuminate\Support\Collection;
+use Throwable;
 
 final class HomeController extends Controller
 {
     public function index(): string
     {
-        $categories = [];
+        try {
+            $categories = $this->homepageCategoriesFromDatabase();
+        } catch (Throwable $exception) {
+            return $this->handleError(ApplicationError::HOMEPAGE_CATEGORIES_UNAVAILABLE, $exception);
+        }
 
-        foreach (BlogDemoData::categories() as $category) {
-            $category['posts'] = array_values(array_filter(
-                $this->demoPosts(),
-                static fn (array $post): bool => in_array($category['id'], $post['category_ids'], true),
-            ));
+        if ($categories->isEmpty()) {
+            return $this->render('home/index.tpl', [
+                'pageTitle' => 'Simple PHP Blog',
+                'categories' => [],
+                'emptyState' => [
+                    'title' => 'No categories published yet',
+                    'message' => 'The homepage is connected to the database, but no categories are available for display yet.',
+                ],
+            ]);
+        }
 
-            $categories[] = $category;
+        try {
+            $postsByCategory = Post::groupedPreviewCardsForCategoryIds($categories->pluck('id')->all());
+        } catch (Throwable $exception) {
+            return $this->handleError(ApplicationError::HOMEPAGE_POSTS_UNAVAILABLE, $exception);
         }
 
         return $this->render('home/index.tpl', [
             'pageTitle' => 'Simple PHP Blog',
-            'categories' => $categories,
+            'categories' => $this->mapHomepageCategories($categories, $postsByCategory),
+            'emptyState' => null,
         ]);
     }
 
     /**
+     * @return Collection<int, Category>
+     */
+    private function homepageCategoriesFromDatabase(): Collection
+    {
+        return Category::forHomepage();
+    }
+
+    /**
+     * @param array<int, array<int, array<string, string>>> $postsByCategory
      * @return array<int, array<string, mixed>>
      */
-    private function demoPosts(): array
+    private function mapHomepageCategories(Collection $categories, array $postsByCategory): array
     {
-        $postCategoryMap = [];
-
-        foreach (BlogDemoData::postCategories() as $relation) {
-            $postCategoryMap[$relation['post_id']][] = $relation['category_id'];
-        }
-
-        return array_map(
-            static fn (array $post): array => [
-                'slug' => $post['slug'],
-                'image' => $post['image'],
-                'title' => $post['title'],
-                'description' => $post['description'],
-                'published_label' => date('M j, Y', strtotime($post['published_at'])),
-                'category_ids' => $postCategoryMap[$post['id']] ?? [],
-            ],
-            BlogDemoData::posts(),
-        );
+        return $categories
+            ->map(static function (Category $category) use ($postsByCategory): array {
+                return [
+                    'name' => $category->name,
+                    'slug' => $category->slug,
+                    'description' => $category->description,
+                    'posts' => $postsByCategory[$category->id] ?? [],
+                ];
+            })
+            ->all();
     }
 }

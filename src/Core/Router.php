@@ -12,6 +12,7 @@ final class Router
      * @var array<string, array<int, array{path: string, handler: Closure}>>
      */
     private array $routes = [];
+    private ?Closure $fallbackHandler = null;
 
     public function get(string $path, Closure $handler): void
     {
@@ -19,6 +20,11 @@ final class Router
             'path' => $this->normalizePath($path),
             'handler' => $handler,
         ];
+    }
+
+    public function fallback(Closure $handler): void
+    {
+        $this->fallbackHandler = $handler;
     }
 
     public function dispatch(string $method, string $uri): string
@@ -32,6 +38,10 @@ final class Router
             if ($parameters !== null) {
                 return $route['handler'](...$parameters);
             }
+        }
+
+        if ($this->fallbackHandler instanceof Closure) {
+            return ($this->fallbackHandler)();
         }
 
         http_response_code(404);

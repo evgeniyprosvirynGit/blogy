@@ -17,3 +17,10 @@ it('dispatches registered get routes with path parameters', function (): void {
 
     expect($router->dispatch('GET', '/category/design-systems'))->toBe('category design-systems');
 });
+
+it('dispatches the fallback handler for missing routes', function (): void {
+    $router = new Router();
+    $router->fallback(static fn (): string => 'custom 404');
+
+    expect($router->dispatch('GET', '/missing-page'))->toBe('custom 404');
+});
