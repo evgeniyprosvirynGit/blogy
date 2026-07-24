@@ -7,9 +7,12 @@
     {$viteTags nofilter}
 </head>
 <body class="bg-stone-50 text-slate-900 antialiased">
-    <div class="min-h-screen">
+    <div class="flex min-h-screen flex-col">
         {include file="partials/header.tpl"}
-        {block name=content}{/block}
+        <div class="flex-1">
+            {block name=content}{/block}
+        </div>
+        {include file="partials/footer.tpl"}
     </div>
 </body>
 </html>
