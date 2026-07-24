@@ -7,6 +7,7 @@ use App\Controllers\CategoryController;
 use App\Controllers\PostController;
 use App\Classes\Errors\Enums\ApplicationError;
 use App\Classes\Errors\FileErrorLogger;
+use App\Classes\Posts\RelatedArticlesProvider;
 use App\Classes\Errors\TemplateErrorHandler;
 use App\Core\Database;
 use App\Core\Env;
@@ -32,9 +33,19 @@ $errorLogger = new FileErrorLogger(
     $appConfig['paths']['logs']['application'],
 );
 $errorHandler = new TemplateErrorHandler($view, $errorLogger);
-$homeController = new HomeController($view, $errorHandler);
-$categoryController = new CategoryController($view, $errorHandler);
-$postController = new PostController($view, $errorHandler);
+$relatedArticlesProvider = new RelatedArticlesProvider($appConfig['blog']['article_page']['related_posts_limit']);
+$homeController = new HomeController(
+    $view,
+    $errorHandler,
+    $appConfig['blog']['homepage']['categories_limit'],
+    $appConfig['blog']['homepage']['posts_per_category'],
+);
+$categoryController = new CategoryController(
+    $view,
+    $errorHandler,
+    $appConfig['blog']['category_page']['posts_per_page'],
+);
+$postController = new PostController($view, $errorHandler, $relatedArticlesProvider);
 $router = new Router();
 
 $router->get('/', static fn (): string => $homeController->index());

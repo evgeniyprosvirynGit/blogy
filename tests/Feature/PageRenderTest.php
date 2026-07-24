@@ -11,7 +11,13 @@ beforeEach(function (): void {
 });
 
 it('renders the homepage with seeded categories and posts', function (): void {
-    $controller = new HomeController(testView(), testErrorHandler());
+    $config = testAppConfig();
+    $controller = new HomeController(
+        testView(),
+        testErrorHandler(),
+        $config['blog']['homepage']['categories_limit'],
+        $config['blog']['homepage']['posts_per_category'],
+    );
 
     $html = $controller->index();
 
@@ -27,7 +33,13 @@ it('renders an empty state on homepage when there are no categories', function (
     \App\Models\Post::query()->delete();
     \App\Models\Category::query()->delete();
 
-    $controller = new HomeController(testView(), testErrorHandler());
+    $config = testAppConfig();
+    $controller = new HomeController(
+        testView(),
+        testErrorHandler(),
+        $config['blog']['homepage']['categories_limit'],
+        $config['blog']['homepage']['posts_per_category'],
+    );
 
     $html = $controller->index();
 
@@ -37,7 +49,12 @@ it('renders an empty state on homepage when there are no categories', function (
 });
 
 it('renders the category page with sorting controls and article cards', function (): void {
-    $controller = new CategoryController(testView(), testErrorHandler());
+    $config = testAppConfig();
+    $controller = new CategoryController(
+        testView(),
+        testErrorHandler(),
+        $config['blog']['category_page']['posts_per_page'],
+    );
 
     $html = $controller->show('design-systems');
 
@@ -51,7 +68,7 @@ it('renders the category page with sorting controls and article cards', function
 });
 
 it('renders the article page with full content and related articles', function (): void {
-    $controller = new PostController(testView(), testErrorHandler());
+    $controller = new PostController(testView(), testErrorHandler(), testRelatedArticlesProvider());
 
     $html = $controller->show('building-a-category-page');
 
@@ -64,7 +81,12 @@ it('renders the article page with full content and related articles', function (
 });
 
 it('renders a not found page when category does not exist', function (): void {
-    $controller = new CategoryController(testView(), testErrorHandler());
+    $config = testAppConfig();
+    $controller = new CategoryController(
+        testView(),
+        testErrorHandler(),
+        $config['blog']['category_page']['posts_per_page'],
+    );
 
     $html = $controller->show('missing-category');
 
@@ -74,7 +96,7 @@ it('renders a not found page when category does not exist', function (): void {
 });
 
 it('renders a not found page when article does not exist', function (): void {
-    $controller = new PostController(testView(), testErrorHandler());
+    $controller = new PostController(testView(), testErrorHandler(), testRelatedArticlesProvider());
 
     $html = $controller->show('missing-article');
 

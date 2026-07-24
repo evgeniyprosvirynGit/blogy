@@ -9,6 +9,18 @@ return [
     'env' => $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'] ?? 'local',
     'debug' => filter_var($_ENV['APP_DEBUG'] ?? $_SERVER['APP_DEBUG'] ?? true, FILTER_VALIDATE_BOOL),
     'url' => $_ENV['APP_URL'] ?? $_SERVER['APP_URL'] ?? 'https://blogy.ddev.site',
+    'blog' => [
+        'homepage' => [
+            'categories_limit' => 4,
+            'posts_per_category' => 3,
+        ],
+        'category_page' => [
+            'posts_per_page' => 12,
+        ],
+        'article_page' => [
+            'related_posts_limit' => 3,
+        ],
+    ],
     'vite' => [
         'entrypoint' => 'resources/js/app.js',
         'manifest_path' => '/public/build/.vite/manifest.json',

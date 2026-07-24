@@ -4,14 +4,24 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Classes\Errors\Contracts\ErrorHandlerInterface;
 use App\Classes\Errors\Enums\ApplicationError;
 use App\Core\Controller;
+use App\Core\View;
 use App\Models\Category;
 use App\Models\Post;
 use Throwable;
 
 final class CategoryController extends Controller
 {
+    public function __construct(
+        View $view,
+        ErrorHandlerInterface $errorHandler,
+        private readonly int $postsPerPage,
+    ) {
+        parent::__construct($view, $errorHandler);
+    }
+
     public function show(string $slug): string
     {
         try {
@@ -22,7 +32,7 @@ final class CategoryController extends Controller
             }
 
             $sort = $this->currentSort();
-            $posts = Post::previewCardsForCategory($category->id, $sort);
+            $posts = Post::previewCardsForCategory($category->id, $sort, $this->postsPerPage);
 
             return $this->render('category/show.tpl', [
                 'pageTitle' => $category->name,

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Classes\Errors\Contracts\ErrorHandlerInterface;
 use App\Classes\Errors\Enums\ApplicationError;
+use App\Core\View;
 use App\Models\Category;
 use App\Models\Post;
 use App\Core\Controller;
@@ -13,6 +15,15 @@ use Throwable;
 
 final class HomeController extends Controller
 {
+    public function __construct(
+        View $view,
+        ErrorHandlerInterface $errorHandler,
+        private readonly int $categoriesLimit,
+        private readonly int $postsPerCategory,
+    ) {
+        parent::__construct($view, $errorHandler);
+    }
+
     public function index(): string
     {
         try {
@@ -33,7 +44,10 @@ final class HomeController extends Controller
         }
 
         try {
-            $postsByCategory = Post::groupedPreviewCardsForCategoryIds($categories->pluck('id')->all());
+            $postsByCategory = Post::groupedPreviewCardsForCategoryIds(
+                $categories->pluck('id')->all(),
+                $this->postsPerCategory,
+            );
         } catch (Throwable $exception) {
             return $this->handleError(ApplicationError::HOMEPAGE_POSTS_UNAVAILABLE, $exception);
         }
@@ -50,7 +64,7 @@ final class HomeController extends Controller
      */
     private function homepageCategoriesFromDatabase(): Collection
     {
-        return Category::forHomepage();
+        return Category::forHomepage($this->categoriesLimit);
     }
 
     /**

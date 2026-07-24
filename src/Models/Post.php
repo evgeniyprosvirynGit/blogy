@@ -42,6 +42,67 @@ final class Post extends Model
     }
 
     /**
+     * @return array<string, mixed>|null
+     */
+    public static function articlePageDataBySlug(string $slug): ?array
+    {
+        $rows = Capsule::table('posts')
+            ->leftJoin('post_category', 'post_category.post_id', '=', 'posts.id')
+            ->leftJoin('categories', 'categories.id', '=', 'post_category.category_id')
+            ->select([
+                'posts.id',
+                'posts.title',
+                'posts.slug',
+                'posts.image',
+                'posts.description',
+                'posts.content',
+                'posts.views',
+                'posts.published_at',
+                'categories.id as category_id',
+                'categories.name as category_name',
+                'categories.slug as category_slug',
+            ])
+            ->where('posts.slug', $slug)
+            ->orderBy('categories.id')
+            ->get();
+
+        if ($rows->isEmpty()) {
+            return null;
+        }
+
+        $post = $rows->first();
+        $categoryIds = [];
+        $primaryCategory = null;
+
+        foreach ($rows as $row) {
+            if ($row->category_id === null) {
+                continue;
+            }
+
+            $categoryIds[] = (int) $row->category_id;
+
+            if ($primaryCategory === null) {
+                $primaryCategory = [
+                    'name' => (string) $row->category_name,
+                    'slug' => (string) $row->category_slug,
+                ];
+            }
+        }
+
+        return [
+            'id' => $post->id,
+            'title' => (string) $post->title,
+            'category' => $primaryCategory,
+            'category_ids' => array_values(array_unique($categoryIds)),
+            'image' => (string) $post->image,
+            'description' => (string) $post->description,
+            'publishedAt' => $post->published_at !== null ? date('F j, Y', strtotime((string) $post->published_at)) : '',
+            'views' => number_format((int) $post->views),
+            'paragraphs' => self::contentParagraphs((string) $post->content),
+        ];
+    }
+
+    /**
      * @param array<int, int> $categoryIds
      * @return array<int, array<int, array<string, string>>>
      */
@@ -151,5 +212,15 @@ final class Post extends Model
         }
 
         return $postsByCategory;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function contentParagraphs(string $content): array
+    {
+        $paragraphs = preg_split("/\n\s*\n/", trim($content)) ?: [];
+
+        return array_values(array_filter(array_map('trim', $paragraphs)));
     }
 }

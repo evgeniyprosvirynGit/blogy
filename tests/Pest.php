@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Classes\Errors\FileErrorLogger;
+use App\Classes\Posts\RelatedArticlesProvider;
 use App\Classes\Errors\TemplateErrorHandler;
 use App\Core\Database;
 use App\Core\View;
@@ -11,7 +12,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 
 function testView(): View
 {
-    $config = require dirname(__DIR__) . '/config/app.php';
+    $config = testAppConfig();
     $tmpBase = sys_get_temp_dir() . '/blogy-tests-smarty';
     $compilePath = $tmpBase . '/compile';
     $cachePath = $tmpBase . '/cache';
@@ -30,6 +31,11 @@ function testView(): View
     return new View($config);
 }
 
+function testAppConfig(): array
+{
+    return require dirname(__DIR__) . '/config/app.php';
+}
+
 function testErrorHandler(): TemplateErrorHandler
 {
     return new TemplateErrorHandler(
@@ -39,6 +45,11 @@ function testErrorHandler(): TemplateErrorHandler
             sys_get_temp_dir() . '/blogy-tests-application.log',
         ),
     );
+}
+
+function testRelatedArticlesProvider(): RelatedArticlesProvider
+{
+    return new RelatedArticlesProvider(testAppConfig()['blog']['article_page']['related_posts_limit']);
 }
 
 function testDatabase(): Capsule
