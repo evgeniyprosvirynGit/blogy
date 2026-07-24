@@ -5,14 +5,19 @@ declare(strict_types=1);
 use App\Controllers\HomeController;
 use App\Controllers\CategoryController;
 use App\Controllers\PostController;
+use App\Classes\Cache\ArrayCacheStore;
+use App\Classes\Cache\Cache;
 use App\Classes\Categories\CategoryPaginator;
 use App\Classes\Categories\CategoryPostSorter;
 use App\Classes\Errors\Enums\ApplicationError;
 use App\Classes\Errors\FileErrorLogger;
+use App\Classes\Cache\RedisCacheStore;
 use App\Classes\Posts\RelatedArticlesProvider;
+use App\Core\CacheManager;
 use App\Classes\Errors\TemplateErrorHandler;
 use App\Core\Database;
 use App\Core\Env;
+use App\Core\RedisConnection;
 use App\Core\Router;
 use App\Core\View;
 
@@ -23,11 +28,24 @@ $basePath = dirname(__DIR__);
 Env::load($basePath);
 
 $appConfig = require $basePath . '/config/app.php';
+$cacheConfig = require $basePath . '/config/cache.php';
 $databaseConfig = require $basePath . '/config/database.php';
+$redisConfig = require $basePath . '/config/redis.php';
 
 date_default_timezone_set($_ENV['APP_TIMEZONE'] ?? $_SERVER['APP_TIMEZONE'] ?? 'Asia/Tbilisi');
 
 Database::boot($databaseConfig);
+
+try {
+    if (($cacheConfig['driver'] ?? 'redis') === 'redis') {
+        RedisConnection::boot($redisConfig);
+        CacheManager::boot(new Cache(new RedisCacheStore()), $cacheConfig);
+    } else {
+        CacheManager::boot(new Cache(new ArrayCacheStore()), $cacheConfig);
+    }
+} catch (Throwable) {
+    CacheManager::boot(new Cache(new ArrayCacheStore()), $cacheConfig);
+}
 
 $view = new View($appConfig);
 $errorLogger = new FileErrorLogger(

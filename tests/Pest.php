@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Classes\Cache\ArrayCacheStore;
+use App\Classes\Cache\Cache;
 use App\Classes\Categories\CategoryPaginator;
 use App\Classes\Categories\CategoryPostSorter;
 use App\Classes\Errors\FileErrorLogger;
 use App\Classes\Posts\RelatedArticlesProvider;
 use App\Classes\Errors\TemplateErrorHandler;
+use App\Core\CacheManager;
 use App\Core\Database;
 use App\Core\View;
 use App\Support\BlogDemoData;
@@ -66,6 +69,7 @@ function testCategoryPaginator(): CategoryPaginator
 
 function testDatabase(): Capsule
 {
+    CacheManager::reset();
     Database::reset();
 
     $databasePath = sys_get_temp_dir() . '/blogy-tests.sqlite';
@@ -113,6 +117,11 @@ function testDatabase(): Capsule
     $capsule->table('categories')->insert(BlogDemoData::categories());
     $capsule->table('posts')->insert(BlogDemoData::posts());
     $capsule->table('post_category')->insert(BlogDemoData::postCategories());
+
+    CacheManager::boot(
+        new Cache(new ArrayCacheStore()),
+        require dirname(__DIR__) . '/config/cache.php',
+    );
 
     return $capsule;
 }
