@@ -27,6 +27,18 @@ body {
     border: 1px solid rgb(226 232 240);
 }
 
+.article-page__hero {
+    background:
+        linear-gradient(180deg, rgba(255, 251, 235, 0.72), rgba(255, 255, 255, 0.96)),
+        radial-gradient(circle at top right, rgba(251, 191, 36, 0.12), transparent 24rem);
+    border: 1px solid rgb(226 232 240);
+}
+
+.article-page__content {
+    display: grid;
+    gap: 2rem;
+}
+
 .category-page__hero {
     background:
         linear-gradient(180deg, rgba(255, 251, 235, 0.72), rgba(255, 255, 255, 0.96)),

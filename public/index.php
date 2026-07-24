@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controllers\HomeController;
 use App\Controllers\CategoryController;
+use App\Controllers\PostController;
 use App\Core\Database;
 use App\Core\Env;
 use App\Core\Router;
@@ -25,9 +26,11 @@ Database::boot($databaseConfig);
 $view = new View($appConfig);
 $homeController = new HomeController($view);
 $categoryController = new CategoryController($view);
+$postController = new PostController($view);
 $router = new Router();
 
 $router->get('/', static fn (): string => $homeController->index());
 $router->get('/category/{slug}', static fn (string $slug): string => $categoryController->show($slug));
+$router->get('/post/{slug}', static fn (string $slug): string => $postController->show($slug));
 
 echo $router->dispatch($_SERVER['REQUEST_METHOD'] ?? 'GET', $_SERVER['REQUEST_URI'] ?? '/');
