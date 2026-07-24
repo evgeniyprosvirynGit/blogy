@@ -6,12 +6,12 @@ namespace App\Core;
 
 final class Vite
 {
-    private const MANIFEST_PATH = '/public/build/.vite/manifest.json';
-    private const DEV_SERVER_URL = 'https://blogy.ddev.site:5173';
-
-    public static function tags(string $entryPoint, string $basePath): string
+    public static function tags(array $config, string $basePath): string
     {
-        $manifestPath = $basePath . self::MANIFEST_PATH;
+        $entryPoint = (string) ($config['entrypoint'] ?? '');
+        $manifestPath = $basePath . (string) ($config['manifest_path'] ?? '');
+        $buildDirectory = rtrim((string) ($config['build_directory'] ?? '/build'), '/');
+        $devServerUrl = rtrim((string) ($config['dev_server_url'] ?? ''), '/');
 
         if (is_file($manifestPath)) {
             $manifest = json_decode((string) file_get_contents($manifestPath), true);
@@ -22,13 +22,18 @@ final class Vite
 
                 if (isset($entry['css']) && is_array($entry['css'])) {
                     foreach ($entry['css'] as $cssFile) {
-                        $tags[] = sprintf('<link rel="stylesheet" href="/build/%s">', ltrim((string) $cssFile, '/'));
+                        $tags[] = sprintf(
+                            '<link rel="stylesheet" href="%s/%s">',
+                            $buildDirectory,
+                            ltrim((string) $cssFile, '/')
+                        );
                     }
                 }
 
                 if (isset($entry['file'])) {
                     $tags[] = sprintf(
-                        '<script type="module" src="/build/%s"></script>',
+                        '<script type="module" src="%s/%s"></script>',
+                        $buildDirectory,
                         ltrim((string) $entry['file'], '/')
                     );
                 }
@@ -39,7 +44,7 @@ final class Vite
 
         return sprintf(
             '<script type="module" src="%s/%s"></script>',
-            self::DEV_SERVER_URL,
+            $devServerUrl,
             ltrim($entryPoint, '/')
         );
     }

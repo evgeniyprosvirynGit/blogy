@@ -28,4 +28,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .phpunit.result.cache
+.phpunit.cache/
+.codebase-memory/
 coverage/

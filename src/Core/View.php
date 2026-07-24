@@ -20,7 +20,7 @@ final class View
             'name' => $config['name'],
             'url' => $config['url'],
         ]);
-        $this->smarty->assign('viteTags', Vite::tags('resources/js/app.js', $config['paths']['base']));
+        $this->smarty->assign('viteTags', Vite::tags($config['vite'], $config['paths']['base']));
     }
 
     public function render(string $template, array $data = []): string
