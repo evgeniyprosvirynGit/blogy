@@ -11,8 +11,10 @@ return [
     'url' => $_ENV['APP_URL'] ?? $_SERVER['APP_URL'] ?? 'https://blogy.ddev.site',
     'blog' => [
         'homepage' => [
+            'page_title' => 'Simple PHP Blog',
             'categories_limit' => 4,
             'posts_per_category' => 3,
+            'default_post_image' => '/images/blog.jpg',
         ],
         'category_page' => [
             'posts_per_page' => 12,

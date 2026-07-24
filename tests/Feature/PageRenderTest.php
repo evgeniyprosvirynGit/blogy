@@ -16,8 +16,10 @@ it('renders the homepage with seeded categories and posts', function (): void {
         testView(),
         testErrorHandler(),
         testResponsiveImageService(),
+        $config['blog']['homepage']['page_title'],
         $config['blog']['homepage']['categories_limit'],
         $config['blog']['homepage']['posts_per_category'],
+        $config['blog']['homepage']['default_post_image'],
     );
 
     $html = $controller->index();
@@ -39,8 +41,10 @@ it('renders an empty state on homepage when there are no categories', function (
         testView(),
         testErrorHandler(),
         testResponsiveImageService(),
+        $config['blog']['homepage']['page_title'],
         $config['blog']['homepage']['categories_limit'],
         $config['blog']['homepage']['posts_per_category'],
+        $config['blog']['homepage']['default_post_image'],
     );
 
     $html = $controller->index();

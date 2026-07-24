@@ -78,8 +78,10 @@ $homeController = new HomeController(
     $view,
     $errorHandler,
     $responsiveImageService,
+    $appConfig['blog']['homepage']['page_title'],
     $appConfig['blog']['homepage']['categories_limit'],
     $appConfig['blog']['homepage']['posts_per_category'],
+    $appConfig['blog']['homepage']['default_post_image'],
 );
 $categoryController = new CategoryController(
     $view,

@@ -26,4 +26,18 @@ abstract class Controller
     {
         return $this->errorHandler->handle($error, $exception);
     }
+
+    protected function queryString(string $key): ?string
+    {
+        $value = $_GET[$key] ?? null;
+
+        return is_string($value) ? $value : null;
+    }
+
+    protected function positiveIntQuery(string $key, int $default = 1): int
+    {
+        $value = filter_var($this->queryString($key) ?? $default, FILTER_VALIDATE_INT);
+
+        return $value !== false && $value > 0 ? $value : $default;
+    }
 }

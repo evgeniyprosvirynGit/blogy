@@ -41,20 +41,13 @@ final class CategoryController extends Controller
             $currentPage = $this->currentPage();
             $postPage = $this->categoryPostsFromDatabase($category->id, $sort, $currentPage);
 
-            return $this->render('category/show.tpl', [
-                'pageTitle' => $category->name,
-                'category' => $this->mapCategory($category, $postPage['total']),
-                'sortOptions' => $this->categoryPostSorter->options($slug),
-                'currentSort' => $sort,
-                'posts' => $postPage['items'],
-                'pagination' => $this->categoryPaginator->build(
-                    $slug,
-                    $postPage['current_page'] ?? $currentPage,
-                    $postPage['total'],
-                    $this->postsPerPage,
-                    ['sort' => $sort],
-                ),
-            ]);
+            return $this->render('category/show.tpl', $this->categoryPagePayload(
+                $category,
+                $slug,
+                $sort,
+                $currentPage,
+                $postPage,
+            ));
         } catch (Throwable $exception) {
             return $this->handleError(ApplicationError::CATEGORY_UNAVAILABLE, $exception);
         }
@@ -62,14 +55,12 @@ final class CategoryController extends Controller
 
     private function currentSort(): string
     {
-        return $this->categoryPostSorter->current($_GET['sort'] ?? null);
+        return $this->categoryPostSorter->current($this->queryString('sort'));
     }
 
     private function currentPage(): int
     {
-        $page = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT);
-
-        return $page !== false && $page > 0 ? $page : 1;
+        return $this->positiveIntQuery('page');
     }
 
     private function categoryFromDatabase(string $slug): ?Category
@@ -93,6 +84,33 @@ final class CategoryController extends Controller
     }
 
     /**
+     * @param array{items: array<int, array<string, mixed>>, total: int, current_page?: int} $postPage
+     * @return array<string, mixed>
+     */
+    private function categoryPagePayload(
+        Category $category,
+        string $slug,
+        string $sort,
+        int $requestedPage,
+        array $postPage,
+    ): array {
+        return [
+            'pageTitle' => $category->name,
+            'category' => $this->mapCategory($category, $postPage['total']),
+            'sortOptions' => $this->categoryPostSorter->options($slug),
+            'currentSort' => $sort,
+            'posts' => $postPage['items'],
+            'pagination' => $this->categoryPaginator->build(
+                $slug,
+                $postPage['current_page'] ?? $requestedPage,
+                $postPage['total'],
+                $this->postsPerPage,
+                ['sort' => $sort],
+            ),
+        ];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function mapCategory(Category $category, int $totalArticles): array
@@ -104,5 +122,4 @@ final class CategoryController extends Controller
             'articleCount' => $totalArticles,
         ];
     }
-
 }

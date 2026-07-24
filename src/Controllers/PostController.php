@@ -36,15 +36,25 @@ final class PostController extends Controller
             $relatedPosts = $this->relatedArticlesProvider->forArticle($post);
             $post['image'] = $this->responsiveImageService->make($post['image'], 'article_cover');
 
-            return $this->render('post/show.tpl', [
-                'pageTitle' => $post['title'],
-                'post' => $post,
-                'relatedPosts' => $this->mapRelatedPosts($relatedPosts),
-                'relatedPostsCount' => count($relatedPosts),
-            ]);
+            return $this->render('post/show.tpl', $this->articlePagePayload($post, $relatedPosts));
         } catch (Throwable $exception) {
             return $this->handleError(ApplicationError::ARTICLE_UNAVAILABLE, $exception);
         }
+    }
+
+    /**
+     * @param array<string, mixed> $post
+     * @param array<int, array<string, string>> $relatedPosts
+     * @return array<string, mixed>
+     */
+    private function articlePagePayload(array $post, array $relatedPosts): array
+    {
+        return [
+            'pageTitle' => $post['title'],
+            'post' => $post,
+            'relatedPosts' => $this->mapRelatedPosts($relatedPosts),
+            'relatedPostsCount' => count($relatedPosts),
+        ];
     }
 
     /**

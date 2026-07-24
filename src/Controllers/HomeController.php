@@ -20,8 +20,10 @@ final class HomeController extends Controller
         View $view,
         ErrorHandlerInterface $errorHandler,
         private readonly ResponsiveImageService $responsiveImageService,
+        private readonly string $pageTitle,
         private readonly int $categoriesLimit,
         private readonly int $postsPerCategory,
+        private readonly string $defaultPostImage,
     ) {
         parent::__construct($view, $errorHandler);
     }
@@ -35,14 +37,7 @@ final class HomeController extends Controller
         }
 
         if ($categories->isEmpty()) {
-            return $this->render('home/index.tpl', [
-                'pageTitle' => 'Simple PHP Blog',
-                'categories' => [],
-                'emptyState' => [
-                    'title' => 'No categories published yet',
-                    'message' => 'The homepage is connected to the database, but no categories are available for display yet.',
-                ],
-            ]);
+            return $this->render('home/index.tpl', $this->emptyHomepagePayload());
         }
 
         try {
@@ -55,10 +50,25 @@ final class HomeController extends Controller
         }
 
         return $this->render('home/index.tpl', [
-            'pageTitle' => 'Simple PHP Blog',
+            'pageTitle' => $this->pageTitle,
             'categories' => $this->mapHomepageCategories($categories, $postsByCategory),
             'emptyState' => null,
         ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function emptyHomepagePayload(): array
+    {
+        return [
+            'pageTitle' => $this->pageTitle,
+            'categories' => [],
+            'emptyState' => [
+                'title' => 'No categories published yet',
+                'message' => 'The homepage is connected to the database, but no categories are available for display yet.',
+            ],
+        ];
     }
 
     /**
@@ -96,11 +106,19 @@ final class HomeController extends Controller
         return array_map(function (array $post): array {
             return [
                 'href' => "/post/{$post['slug']}",
-                'image' => $this->responsiveImageService->make($post['image'] !== '' ? $post['image'] : '/images/blog.jpg', 'home_card'),
+                'image' => $this->responsiveImageService->make($this->homepagePostImage($post), 'home_card'),
                 'title' => $post['title'],
                 'meta' => $post['published_label'],
                 'description' => $post['description'],
             ];
         }, $posts);
+    }
+
+    /**
+     * @param array<string, string> $post
+     */
+    private function homepagePostImage(array $post): string
+    {
+        return $post['image'] !== '' ? $post['image'] : $this->defaultPostImage;
     }
 }
