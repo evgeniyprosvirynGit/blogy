@@ -184,7 +184,7 @@ final class Post extends Model
     }
 
     /**
-     * @return array{items: array<int, array<string, string>>, total: int}
+     * @return array{items: array<int, array<string, string>>, total: int, current_page: int}
      */
     public static function previewCardsForCategory(int $categoryId, string $sort = 'published_at', int $perPage = 12, int $page = 1): array
     {
@@ -200,10 +200,13 @@ final class Post extends Model
                     ->where('post_category.category_id', $categoryId);
 
                 $total = (clone $baseQuery)->count('posts.id');
+                $totalPages = max(1, (int) ceil($total / max(1, $perPage)));
+                $currentPage = min($page, $totalPages);
+
                 $items = $baseQuery
                     ->orderByDesc("posts.{$orderColumn}")
                     ->orderByDesc('posts.id')
-                    ->forPage($page, $perPage)
+                    ->forPage($currentPage, $perPage)
                     ->get()
                     ->map(static fn (self $post): array => [
                         'href' => "/post/{$post->slug}",
@@ -217,6 +220,7 @@ final class Post extends Model
                 return [
                     'items' => $items,
                     'total' => $total,
+                    'current_page' => $currentPage,
                 ];
             },
             CacheManager::ttl('category_posts', 600),

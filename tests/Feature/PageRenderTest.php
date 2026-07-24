@@ -97,6 +97,31 @@ it('renders real pagination links on category pages', function (): void {
         ->toContain('/post/sort-controls');
 });
 
+it('clamps out of range category pages to the last available page content', function (): void {
+    $_GET['page'] = '999';
+    $_GET['sort'] = 'published_at';
+
+    $controller = new CategoryController(
+        testView(),
+        testErrorHandler(),
+        testResponsiveImageService(),
+        2,
+        testCategoryPostSorter(),
+        testCategoryPaginator(),
+    );
+
+    $html = $controller->show('design-systems');
+
+    unset($_GET['page'], $_GET['sort']);
+
+    expect($html)
+        ->toContain('/category/design-systems?sort=published_at&amp;page=1')
+        ->toContain('/category/design-systems?sort=published_at&amp;page=2')
+        ->toContain('/post/meaningful-card-layouts')
+        ->toContain('/post/sort-controls')
+        ->not->toContain('/post/building-a-category-page');
+});
+
 it('renders the article page with full content and related articles', function (): void {
     $controller = new PostController(testView(), testErrorHandler(), testResponsiveImageService(), testRelatedArticlesProvider());
 

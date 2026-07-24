@@ -49,7 +49,7 @@ final class CategoryController extends Controller
                 'posts' => $postPage['items'],
                 'pagination' => $this->categoryPaginator->build(
                     $slug,
-                    $currentPage,
+                    $postPage['current_page'] ?? $currentPage,
                     $postPage['total'],
                     $this->postsPerPage,
                     ['sort' => $sort],
