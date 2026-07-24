@@ -6,6 +6,8 @@ namespace App\Controllers;
 
 use App\Classes\Errors\Contracts\ErrorHandlerInterface;
 use App\Classes\Errors\Enums\ApplicationError;
+use App\Classes\Pagination\Contracts\PaginatorInterface;
+use App\Classes\Sorting\Contracts\SorterInterface;
 use App\Core\Controller;
 use App\Core\View;
 use App\Models\Category;
@@ -18,6 +20,8 @@ final class CategoryController extends Controller
         View $view,
         ErrorHandlerInterface $errorHandler,
         private readonly int $postsPerPage,
+        private readonly SorterInterface $categoryPostSorter,
+        private readonly PaginatorInterface $categoryPaginator,
     ) {
         parent::__construct($view, $errorHandler);
     }
@@ -25,44 +29,22 @@ final class CategoryController extends Controller
     public function show(string $slug): string
     {
         try {
-            $category = Category::findBySlugForPage($slug);
+            $category = $this->categoryFromDatabase($slug);
 
             if ($category === null) {
                 return $this->handleError(ApplicationError::CATEGORY_NOT_FOUND);
             }
 
             $sort = $this->currentSort();
-            $posts = Post::previewCardsForCategory($category->id, $sort, $this->postsPerPage);
+            $posts = $this->categoryPostsFromDatabase($category->id, $sort);
 
             return $this->render('category/show.tpl', [
                 'pageTitle' => $category->name,
-                'category' => [
-                    'name' => $category->name,
-                    'slug' => $category->slug,
-                    'description' => $category->description,
-                    'articleCount' => count($posts),
-                ],
-                'sortOptions' => [
-                    [
-                        'label' => 'By publication date',
-                        'value' => 'published_at',
-                        'href' => "/category/{$slug}?sort=published_at",
-                    ],
-                    [
-                        'label' => 'By views',
-                        'value' => 'views',
-                        'href' => "/category/{$slug}?sort=views",
-                    ],
-                ],
+                'category' => $this->mapCategory($category, $posts),
+                'sortOptions' => $this->categoryPostSorter->options($slug),
                 'currentSort' => $sort,
                 'posts' => $posts,
-                'pagination' => [
-                    'prev' => null,
-                    'next' => null,
-                    'pages' => [
-                        ['label' => '1', 'href' => "/category/{$slug}?page=1", 'active' => true],
-                    ],
-                ],
+                'pagination' => $this->categoryPaginator->build($slug),
             ]);
         } catch (Throwable $exception) {
             return $this->handleError(ApplicationError::CATEGORY_UNAVAILABLE, $exception);
@@ -71,8 +53,34 @@ final class CategoryController extends Controller
 
     private function currentSort(): string
     {
-        $sort = $_GET['sort'] ?? 'published_at';
-
-        return $sort === 'views' ? 'views' : 'published_at';
+        return $this->categoryPostSorter->current($_GET['sort'] ?? null);
     }
+
+    private function categoryFromDatabase(string $slug): ?Category
+    {
+        return Category::findBySlugForPage($slug);
+    }
+
+    /**
+     * @return array<int, array<string, string>>
+     */
+    private function categoryPostsFromDatabase(int $categoryId, string $sort): array
+    {
+        return Post::previewCardsForCategory($categoryId, $sort, $this->postsPerPage);
+    }
+
+    /**
+     * @param array<int, array<string, string>> $posts
+     * @return array<string, mixed>
+     */
+    private function mapCategory(Category $category, array $posts): array
+    {
+        return [
+            'name' => $category->name,
+            'slug' => $category->slug,
+            'description' => $category->description,
+            'articleCount' => count($posts),
+        ];
+    }
+
 }

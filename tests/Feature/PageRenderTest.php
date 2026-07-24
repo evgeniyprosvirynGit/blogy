@@ -54,6 +54,8 @@ it('renders the category page with sorting controls and article cards', function
         testView(),
         testErrorHandler(),
         $config['blog']['category_page']['posts_per_page'],
+        testCategoryPostSorter(),
+        testCategoryPaginator(),
     );
 
     $html = $controller->show('design-systems');
@@ -86,6 +88,8 @@ it('renders a not found page when category does not exist', function (): void {
         testView(),
         testErrorHandler(),
         $config['blog']['category_page']['posts_per_page'],
+        testCategoryPostSorter(),
+        testCategoryPaginator(),
     );
 
     $html = $controller->show('missing-category');

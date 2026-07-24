@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Classes\Categories\Enums\CategoryPostSortKey;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -143,7 +144,7 @@ final class Post extends Model
      */
     public static function previewCardsForCategory(int $categoryId, string $sort = 'published_at', int $perPage = 12): array
     {
-        $orderColumn = $sort === 'views' ? 'views' : 'published_at';
+        $orderColumn = CategoryPostSortKey::fromNullable($sort)->value;
 
         return self::query()
             ->select(['posts.slug', 'posts.image', 'posts.title', 'posts.description', 'posts.views', 'posts.published_at'])

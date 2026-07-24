@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Controllers\HomeController;
 use App\Controllers\CategoryController;
 use App\Controllers\PostController;
+use App\Classes\Categories\CategoryPaginator;
+use App\Classes\Categories\CategoryPostSorter;
 use App\Classes\Errors\Enums\ApplicationError;
 use App\Classes\Errors\FileErrorLogger;
 use App\Classes\Posts\RelatedArticlesProvider;
@@ -33,6 +35,8 @@ $errorLogger = new FileErrorLogger(
     $appConfig['paths']['logs']['application'],
 );
 $errorHandler = new TemplateErrorHandler($view, $errorLogger);
+$categoryPostSorter = new CategoryPostSorter();
+$categoryPaginator = new CategoryPaginator();
 $relatedArticlesProvider = new RelatedArticlesProvider($appConfig['blog']['article_page']['related_posts_limit']);
 $homeController = new HomeController(
     $view,
@@ -44,6 +48,8 @@ $categoryController = new CategoryController(
     $view,
     $errorHandler,
     $appConfig['blog']['category_page']['posts_per_page'],
+    $categoryPostSorter,
+    $categoryPaginator,
 );
 $postController = new PostController($view, $errorHandler, $relatedArticlesProvider);
 $router = new Router();

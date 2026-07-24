@@ -39,8 +39,8 @@ final class BlogDemoData
             self::post(1, '/images/blog.jpg', 'Building a category page that scales with editorial content', 'building-a-category-page', 'A practical layout study for category feeds with a stable hierarchy, readable summaries, and strong scanability.', 2430, '2026-07-21 09:00:00'),
             self::post(2, '/images/blogs.jpg', 'Editorial UX patterns for article archives', 'editorial-ux-patterns', 'How to balance sorting, pagination, and article density without turning the archive into a noisy dashboard.', 1870, '2026-07-18 09:00:00'),
             self::post(3, '/images/images.jpeg', 'Meaningful card layouts for content-heavy pages', 'meaningful-card-layouts', 'Examples of card composition that keep previews useful while preserving visual rhythm on desktop and mobile.', 1640, '2026-07-12 09:00:00'),
-            self::post(4, '/images/blogs.jpg', 'Improving category navigation with simple hierarchy', 'improving-category-navigation', 'A compact approach to breadcrumbs, page titles, and supporting context that keeps readers oriented.', 1290, '2026-07-08 09:00:00'),
-            self::post(5, '/images/blog.jpg', 'Archive pagination patterns that stay readable', 'archive-pagination', 'Static UI examples for pagination controls that communicate position and next steps clearly.', 986, '2026-07-03 09:00:00'),
+            self::post(4, '/images/blogs.jpg', 'Improving category navigation with simple hierarchy', 'improving-category-navigation', 'A compact approach to breadcrumbs, page titles, and supporting context that keeps readers oriented.', 3210, '2026-07-08 09:00:00'),
+            self::post(5, '/images/blog.jpg', 'Archive pagination patterns that stay readable', 'archive-pagination', 'Static UI examples for pagination controls that communicate position and next steps clearly.', 2780, '2026-07-03 09:00:00'),
             self::post(6, '/images/images.jpeg', 'Sort controls that do not dominate the page', 'sort-controls', 'A lightweight control bar pattern for article lists where sorting is useful but not the primary action.', 754, '2026-06-29 09:00:00'),
         ];
     }

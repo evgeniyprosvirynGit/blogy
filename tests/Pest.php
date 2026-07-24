@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Classes\Categories\CategoryPaginator;
+use App\Classes\Categories\CategoryPostSorter;
 use App\Classes\Errors\FileErrorLogger;
 use App\Classes\Posts\RelatedArticlesProvider;
 use App\Classes\Errors\TemplateErrorHandler;
@@ -50,6 +52,16 @@ function testErrorHandler(): TemplateErrorHandler
 function testRelatedArticlesProvider(): RelatedArticlesProvider
 {
     return new RelatedArticlesProvider(testAppConfig()['blog']['article_page']['related_posts_limit']);
+}
+
+function testCategoryPostSorter(): CategoryPostSorter
+{
+    return new CategoryPostSorter();
+}
+
+function testCategoryPaginator(): CategoryPaginator
+{
+    return new CategoryPaginator();
 }
 
 function testDatabase(): Capsule
