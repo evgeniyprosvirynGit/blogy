@@ -8,6 +8,7 @@
 </head>
 <body class="bg-stone-50 text-slate-900 antialiased">
     <div class="min-h-screen">
+        {include file="partials/header.tpl"}
         {block name=content}{/block}
     </div>
 </body>
