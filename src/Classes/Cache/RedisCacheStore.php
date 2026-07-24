@@ -46,6 +46,18 @@ final readonly class RedisCacheStore implements CacheStoreInterface
         return RedisConnection::client()->exists($key) > 0;
     }
 
+    public function deleteByPrefix(string $prefix): bool
+    {
+        $client = RedisConnection::client();
+        $keys = $client->keys($prefix . '*');
+
+        if ($keys === [] || $keys === false) {
+            return false;
+        }
+
+        return $client->del($keys) > 0;
+    }
+
     public function clear(): bool
     {
         return RedisConnection::client()->flushDB();

@@ -38,6 +38,22 @@ final class ArrayCacheStore implements CacheStoreInterface
         return array_key_exists($key, $this->items);
     }
 
+    public function deleteByPrefix(string $prefix): bool
+    {
+        $deleted = false;
+
+        foreach (array_keys($this->items) as $key) {
+            if (! str_starts_with($key, $prefix)) {
+                continue;
+            }
+
+            unset($this->items[$key]);
+            $deleted = true;
+        }
+
+        return $deleted;
+    }
+
     public function clear(): bool
     {
         $this->items = [];

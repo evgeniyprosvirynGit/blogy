@@ -47,6 +47,11 @@ final class CacheManager
         return self::instance()->clear();
     }
 
+    public static function forgetByPrefix(string $prefix): bool
+    {
+        return self::instance()->forgetByPrefix($prefix);
+    }
+
     public static function reset(): void
     {
         self::$cache = null;

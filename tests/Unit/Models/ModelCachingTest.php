@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Core\CacheManager;
 use App\Models\Category;
 use App\Models\Post;
 
@@ -43,6 +44,7 @@ it('caches article page payload by slug', function (): void {
 
 it('invalidates cached homepage categories after category changes', function (): void {
     $first = Category::forHomepage(4);
+    CacheManager::instance()->put('external.key', 'keep');
 
     Category::query()->create([
         'name' => 'Analytics',
@@ -53,11 +55,13 @@ it('invalidates cached homepage categories after category changes', function ():
     $second = Category::forHomepage(10);
 
     expect($first)->toHaveCount(4)
-        ->and($second->pluck('slug')->all())->toContain('analytics');
+        ->and($second->pluck('slug')->all())->toContain('analytics')
+        ->and(CacheManager::instance()->get('external.key'))->toBe('keep');
 });
 
 it('invalidates cached article payload after post changes', function (): void {
     $first = Post::articlePageDataBySlug('building-a-category-page');
+    CacheManager::instance()->put('external.key', 'keep');
     $post = Post::query()->where('slug', 'building-a-category-page')->firstOrFail();
     $post->update([
         'title' => 'Updated article title',
@@ -68,5 +72,6 @@ it('invalidates cached article payload after post changes', function (): void {
     expect($first)->not->toBeNull()
         ->and($first['title'])->toBe('Building a category page that scales with editorial content')
         ->and($second)->not->toBeNull()
-        ->and($second['title'])->toBe('Updated article title');
+        ->and($second['title'])->toBe('Updated article title')
+        ->and(CacheManager::instance()->get('external.key'))->toBe('keep');
 });

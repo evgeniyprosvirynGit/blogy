@@ -42,7 +42,7 @@ final class Post extends Model
         $saved = parent::save($options);
 
         if ($saved) {
-            CacheManager::clear();
+            $this->invalidatePostCache();
         }
 
         return $saved;
@@ -53,10 +53,18 @@ final class Post extends Model
         $deleted = parent::delete();
 
         if ($deleted) {
-            CacheManager::clear();
+            $this->invalidatePostCache();
         }
 
         return $deleted;
+    }
+
+    private function invalidatePostCache(): void
+    {
+        CacheManager::forgetByPrefix('homepage.posts.');
+        CacheManager::forgetByPrefix('category.posts.');
+        CacheManager::forgetByPrefix('post.slug.');
+        CacheManager::forgetByPrefix('post.related.');
     }
 
     public static function findBySlugForArticlePage(string $slug): ?self

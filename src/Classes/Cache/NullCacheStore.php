@@ -28,6 +28,11 @@ final class NullCacheStore implements CacheStoreInterface
         return false;
     }
 
+    public function deleteByPrefix(string $prefix): bool
+    {
+        return true;
+    }
+
     public function clear(): bool
     {
         return true;

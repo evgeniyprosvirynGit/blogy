@@ -50,6 +50,11 @@ final readonly class Cache implements CacheInterface
         return $this->store->has($key);
     }
 
+    public function forgetByPrefix(string $prefix): bool
+    {
+        return $this->store->deleteByPrefix($prefix);
+    }
+
     public function clear(): bool
     {
         return $this->store->clear();

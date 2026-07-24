@@ -32,7 +32,7 @@ final class Category extends Model
         $saved = parent::save($options);
 
         if ($saved) {
-            CacheManager::clear();
+            $this->invalidateCategoryCache();
         }
 
         return $saved;
@@ -43,10 +43,23 @@ final class Category extends Model
         $deleted = parent::delete();
 
         if ($deleted) {
-            CacheManager::clear();
+            $this->invalidateCategoryCache();
         }
 
         return $deleted;
+    }
+
+    private function invalidateCategoryCache(): void
+    {
+        CacheManager::forgetByPrefix('homepage.categories.');
+        CacheManager::forgetByPrefix('category.slug.');
+        CacheManager::forgetByPrefix('homepage.posts.');
+        CacheManager::forgetByPrefix('post.slug.');
+        CacheManager::forgetByPrefix('post.related.');
+
+        if ($this->id !== null) {
+            CacheManager::forgetByPrefix("category.posts.{$this->id}.");
+        }
     }
 
     /**

@@ -53,6 +53,19 @@ it('forgets keys and clears the store', function (): void {
         ->and($cache->has('two'))->toBeFalse();
 });
 
+it('forgets keys by prefix without clearing unrelated entries', function (): void {
+    $cache = new Cache(new InMemoryCacheStore());
+
+    $cache->put('category.posts.1.published_at.12.1', ['cached' => true]);
+    $cache->put('category.posts.1.views.12.1', ['cached' => true]);
+    $cache->put('custom.key', 'keep');
+
+    expect($cache->forgetByPrefix('category.posts.1.'))->toBeTrue()
+        ->and($cache->has('category.posts.1.published_at.12.1'))->toBeFalse()
+        ->and($cache->has('category.posts.1.views.12.1'))->toBeFalse()
+        ->and($cache->get('custom.key'))->toBe('keep');
+});
+
 final class InMemoryCacheStore implements CacheStoreInterface
 {
     /**
@@ -83,6 +96,22 @@ final class InMemoryCacheStore implements CacheStoreInterface
     public function has(string $key): bool
     {
         return array_key_exists($key, $this->items);
+    }
+
+    public function deleteByPrefix(string $prefix): bool
+    {
+        $deleted = false;
+
+        foreach (array_keys($this->items) as $key) {
+            if (! str_starts_with($key, $prefix)) {
+                continue;
+            }
+
+            unset($this->items[$key]);
+            $deleted = true;
+        }
+
+        return $deleted;
     }
 
     public function clear(): bool

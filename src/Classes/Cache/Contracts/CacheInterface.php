@@ -16,5 +16,7 @@ interface CacheInterface
 
     public function has(string $key): bool;
 
+    public function forgetByPrefix(string $prefix): bool;
+
     public function clear(): bool;
 }

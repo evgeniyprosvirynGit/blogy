@@ -14,5 +14,7 @@ interface CacheStoreInterface
 
     public function has(string $key): bool;
 
+    public function deleteByPrefix(string $prefix): bool;
+
     public function clear(): bool;
 }
