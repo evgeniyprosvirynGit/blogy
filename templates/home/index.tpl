@@ -23,7 +23,7 @@
                             'href' => "/post/{$post.slug}",
                             'image' => $post.image|default:'/images/blog.jpg',
                             'title' => $post.title,
-                            'meta' => $post.published_at|date_format:"%b %e, %Y",
+                            'meta' => $post.published_label,
                             'description' => $post.description
                         ]}
                     {/foreach}

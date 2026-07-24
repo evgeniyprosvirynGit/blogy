@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Support\BlogDemoData;
 
 final class PostController extends Controller
 {
@@ -36,6 +37,51 @@ final class PostController extends Controller
      */
     private function demoPost(string $slug): array
     {
+        foreach (BlogDemoData::posts() as $post) {
+            if ($post['slug'] !== $slug) {
+                continue;
+            }
+
+            return [
+                'title' => $post['title'],
+                'slug' => $post['slug'],
+                'category' => [
+                    'name' => 'Design Systems',
+                    'slug' => 'design-systems',
+                ],
+                'image' => $post['image'],
+                'description' => $post['description'],
+                'author' => 'James Carter',
+                'authorRole' => 'Editorial Lead',
+                'publishedAt' => date('F j, Y', strtotime($post['published_at'])),
+                'views' => number_format($post['views']),
+                'readTime' => '6 min read',
+                'content' => [
+                    [
+                        'heading' => 'Why the article page matters',
+                        'paragraphs' => [
+                            'The article page is where the visual language of the blog either holds together or falls apart. It needs enough structure to support long-form reading without turning into a wall of text.',
+                            'For this layout the goal is straightforward: keep the article readable, preserve a strong headline hierarchy, and make adjacent content discoverable without distracting from the main body.',
+                        ],
+                    ],
+                    [
+                        'heading' => 'A readable content rhythm',
+                        'paragraphs' => [
+                            'The content column should stay restrained in width, with enough whitespace around paragraphs and headings to maintain pace. Supporting metadata belongs near the title, not scattered across the page.',
+                            'Images, descriptions, and article sections should feel related rather than stacked mechanically. That means consistent spacing, clear breaks, and enough contrast between utility information and narrative content.',
+                        ],
+                    ],
+                    [
+                        'heading' => 'Related content should stay secondary',
+                        'paragraphs' => [
+                            'The related articles block exists to extend the reading journey, not to compete with the article itself. Three concise cards are enough for a clean handoff after the main story ends.',
+                            'This keeps the page useful as both a reading experience and a discovery surface while avoiding the clutter of a full archive feed under every post.',
+                        ],
+                    ],
+                ],
+            ];
+        }
+
         return [
             'title' => $this->titleFromSlug($slug),
             'slug' => $slug,
@@ -87,23 +133,17 @@ final class PostController extends Controller
      */
     private function relatedPosts(string $currentSlug): array
     {
-        $slugs = [
-            'editorial-ux-patterns',
-            'meaningful-card-layouts',
-            'archive-pagination',
-        ];
-
         $posts = [];
 
-        foreach ($slugs as $slug) {
-            if ($slug === $currentSlug) {
+        foreach (BlogDemoData::posts() as $post) {
+            if ($post['slug'] === $currentSlug) {
                 continue;
             }
 
             $posts[] = [
-                'href' => "/post/{$slug}",
-                'image' => $this->imageFromSlug($slug),
-                'title' => $this->titleFromSlug($slug),
+                'href' => "/post/{$post['slug']}",
+                'image' => $post['image'],
+                'title' => $post['title'],
                 'meta' => 'Related article',
                 'description' => 'A short follow-up article suggestion placed below the main story for further reading.',
             ];
