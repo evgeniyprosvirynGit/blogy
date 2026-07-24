@@ -3,11 +3,20 @@
     class="group block cursor-pointer overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
 >
     <article class="flex h-full flex-col">
-        <img
-            src="{$image}"
-            alt="{$title} cover"
-            class="h-48 w-full rounded-t-[1.5rem] object-cover"
-        >
+        <picture>
+            {if $image.webp_srcset}
+                <source srcset="{$image.webp_srcset}" sizes="{$image.sizes}" type="image/webp">
+            {/if}
+            <img
+                src="{$image.src}"
+                {if $image.srcset}srcset="{$image.srcset}"{/if}
+                sizes="{$image.sizes}"
+                alt="{$title} cover"
+                class="h-48 w-full rounded-t-[1.5rem] object-cover"
+                loading="lazy"
+                decoding="async"
+            >
+        </picture>
         <div class="p-6">
             <p class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
                 {$meta}

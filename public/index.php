@@ -11,6 +11,7 @@ use App\Classes\Categories\CategoryPaginator;
 use App\Classes\Categories\CategoryPostSorter;
 use App\Classes\Errors\Enums\ApplicationError;
 use App\Classes\Errors\FileErrorLogger;
+use App\Classes\Images\ResponsiveImageService;
 use App\Classes\Cache\RedisCacheStore;
 use App\Classes\Posts\RelatedArticlesProvider;
 use App\Core\CacheManager;
@@ -30,6 +31,7 @@ Env::load($basePath);
 $appConfig = require $basePath . '/config/app.php';
 $cacheConfig = require $basePath . '/config/cache.php';
 $databaseConfig = require $basePath . '/config/database.php';
+$imagesConfig = require $basePath . '/config/images.php';
 $redisConfig = require $basePath . '/config/redis.php';
 
 date_default_timezone_set($_ENV['APP_TIMEZONE'] ?? $_SERVER['APP_TIMEZONE'] ?? 'Asia/Tbilisi');
@@ -43,11 +45,12 @@ try {
     } else {
         CacheManager::boot(new Cache(new ArrayCacheStore()), $cacheConfig);
     }
-} catch (Throwable) {
+} catch (\Throwable) {
     CacheManager::boot(new Cache(new ArrayCacheStore()), $cacheConfig);
 }
 
 $view = new View($appConfig);
+$responsiveImageService = new ResponsiveImageService($imagesConfig);
 $errorLogger = new FileErrorLogger(
     $appConfig['paths']['logs']['error'],
     $appConfig['paths']['logs']['application'],
@@ -59,17 +62,19 @@ $relatedArticlesProvider = new RelatedArticlesProvider($appConfig['blog']['artic
 $homeController = new HomeController(
     $view,
     $errorHandler,
+    $responsiveImageService,
     $appConfig['blog']['homepage']['categories_limit'],
     $appConfig['blog']['homepage']['posts_per_category'],
 );
 $categoryController = new CategoryController(
     $view,
     $errorHandler,
+    $responsiveImageService,
     $appConfig['blog']['category_page']['posts_per_page'],
     $categoryPostSorter,
     $categoryPaginator,
 );
-$postController = new PostController($view, $errorHandler, $relatedArticlesProvider);
+$postController = new PostController($view, $errorHandler, $responsiveImageService, $relatedArticlesProvider);
 $router = new Router();
 
 $router->get('/', static fn (): string => $homeController->index());

@@ -15,6 +15,7 @@ it('renders the homepage with seeded categories and posts', function (): void {
     $controller = new HomeController(
         testView(),
         testErrorHandler(),
+        testResponsiveImageService(),
         $config['blog']['homepage']['categories_limit'],
         $config['blog']['homepage']['posts_per_category'],
     );
@@ -37,6 +38,7 @@ it('renders an empty state on homepage when there are no categories', function (
     $controller = new HomeController(
         testView(),
         testErrorHandler(),
+        testResponsiveImageService(),
         $config['blog']['homepage']['categories_limit'],
         $config['blog']['homepage']['posts_per_category'],
     );
@@ -53,6 +55,7 @@ it('renders the category page with sorting controls and article cards', function
     $controller = new CategoryController(
         testView(),
         testErrorHandler(),
+        testResponsiveImageService(),
         $config['blog']['category_page']['posts_per_page'],
         testCategoryPostSorter(),
         testCategoryPaginator(),
@@ -71,7 +74,7 @@ it('renders the category page with sorting controls and article cards', function
 });
 
 it('renders the article page with full content and related articles', function (): void {
-    $controller = new PostController(testView(), testErrorHandler(), testRelatedArticlesProvider());
+    $controller = new PostController(testView(), testErrorHandler(), testResponsiveImageService(), testRelatedArticlesProvider());
 
     $html = $controller->show('building-a-category-page');
 
@@ -89,6 +92,7 @@ it('renders a not found page when category does not exist', function (): void {
     $controller = new CategoryController(
         testView(),
         testErrorHandler(),
+        testResponsiveImageService(),
         $config['blog']['category_page']['posts_per_page'],
         testCategoryPostSorter(),
         testCategoryPaginator(),
@@ -102,7 +106,7 @@ it('renders a not found page when category does not exist', function (): void {
 });
 
 it('renders a not found page when article does not exist', function (): void {
-    $controller = new PostController(testView(), testErrorHandler(), testRelatedArticlesProvider());
+    $controller = new PostController(testView(), testErrorHandler(), testResponsiveImageService(), testRelatedArticlesProvider());
 
     $html = $controller->show('missing-article');
 

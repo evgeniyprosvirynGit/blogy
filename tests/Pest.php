@@ -7,6 +7,7 @@ use App\Classes\Cache\Cache;
 use App\Classes\Categories\CategoryPaginator;
 use App\Classes\Categories\CategoryPostSorter;
 use App\Classes\Errors\FileErrorLogger;
+use App\Classes\Images\ResponsiveImageService;
 use App\Classes\Posts\RelatedArticlesProvider;
 use App\Classes\Errors\TemplateErrorHandler;
 use App\Core\CacheManager;
@@ -41,6 +42,15 @@ function testAppConfig(): array
     return require dirname(__DIR__) . '/config/app.php';
 }
 
+function testImagesConfig(): array
+{
+    $config = require dirname(__DIR__) . '/config/images.php';
+    $config['cache_directory'] = sys_get_temp_dir() . '/blogy-tests-images-cache';
+    $config['cache_url_prefix'] = '/images/cache';
+
+    return $config;
+}
+
 function testErrorHandler(): TemplateErrorHandler
 {
     return new TemplateErrorHandler(
@@ -55,6 +65,11 @@ function testErrorHandler(): TemplateErrorHandler
 function testRelatedArticlesProvider(): RelatedArticlesProvider
 {
     return new RelatedArticlesProvider(testAppConfig()['blog']['article_page']['related_posts_limit']);
+}
+
+function testResponsiveImageService(): ResponsiveImageService
+{
+    return new ResponsiveImageService(testImagesConfig());
 }
 
 function testCategoryPostSorter(): CategoryPostSorter

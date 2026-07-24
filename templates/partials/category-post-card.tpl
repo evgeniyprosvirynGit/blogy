@@ -3,11 +3,20 @@
     class="category-post-card group"
 >
     <div class="category-post-card__media">
-        <img
-            src="{$post.image}"
-            alt="{$post.title} cover"
-            class="category-post-card__image"
-        >
+        <picture>
+            {if $post.image.webp_srcset}
+                <source srcset="{$post.image.webp_srcset}" sizes="{$post.image.sizes}" type="image/webp">
+            {/if}
+            <img
+                src="{$post.image.src}"
+                {if $post.image.srcset}srcset="{$post.image.srcset}"{/if}
+                sizes="{$post.image.sizes}"
+                alt="{$post.title} cover"
+                class="category-post-card__image"
+                loading="lazy"
+                decoding="async"
+            >
+        </picture>
     </div>
 
     <div class="category-post-card__body">

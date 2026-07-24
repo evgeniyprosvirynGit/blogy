@@ -29,11 +29,20 @@
             </header>
 
             <div class="mt-8 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-                <img
-                    src="{$post.image}"
-                    alt="{$post.title} cover"
-                    class="h-[22rem] w-full object-cover sm:h-[28rem]"
-                >
+                <picture>
+                    {if $post.image.webp_srcset}
+                        <source srcset="{$post.image.webp_srcset}" sizes="{$post.image.sizes}" type="image/webp">
+                    {/if}
+                    <img
+                        src="{$post.image.src}"
+                        {if $post.image.srcset}srcset="{$post.image.srcset}"{/if}
+                        sizes="{$post.image.sizes}"
+                        alt="{$post.title} cover"
+                        class="h-[22rem] w-full object-cover sm:h-[28rem]"
+                        loading="eager"
+                        decoding="async"
+                    >
+                </picture>
             </div>
 
             <div class="article-page__content mt-8 rounded-[2rem] border border-slate-200 bg-white px-6 py-8 shadow-sm sm:px-8 sm:py-10">

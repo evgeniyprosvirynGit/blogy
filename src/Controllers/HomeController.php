@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Classes\Errors\Contracts\ErrorHandlerInterface;
 use App\Classes\Errors\Enums\ApplicationError;
+use App\Classes\Images\ResponsiveImageService;
 use App\Core\View;
 use App\Models\Category;
 use App\Models\Post;
@@ -18,6 +19,7 @@ final class HomeController extends Controller
     public function __construct(
         View $view,
         ErrorHandlerInterface $errorHandler,
+        private readonly ResponsiveImageService $responsiveImageService,
         private readonly int $categoriesLimit,
         private readonly int $postsPerCategory,
     ) {
@@ -74,12 +76,12 @@ final class HomeController extends Controller
     private function mapHomepageCategories(Collection $categories, array $postsByCategory): array
     {
         return $categories
-            ->map(static function (Category $category) use ($postsByCategory): array {
+            ->map(function (Category $category) use ($postsByCategory): array {
                 return [
                     'name' => $category->name,
                     'slug' => $category->slug,
                     'description' => $category->description,
-                    'posts' => self::mapHomepagePosts($postsByCategory[$category->id] ?? []),
+                    'posts' => $this->mapHomepagePosts($postsByCategory[$category->id] ?? []),
                 ];
             })
             ->all();
@@ -87,14 +89,14 @@ final class HomeController extends Controller
 
     /**
      * @param array<int, array<string, string>> $posts
-     * @return array<int, array<string, string>>
+     * @return array<int, array<string, mixed>>
      */
-    private static function mapHomepagePosts(array $posts): array
+    private function mapHomepagePosts(array $posts): array
     {
-        return array_map(static function (array $post): array {
+        return array_map(function (array $post): array {
             return [
                 'href' => "/post/{$post['slug']}",
-                'image' => $post['image'] !== '' ? $post['image'] : '/images/blog.jpg',
+                'image' => $this->responsiveImageService->make($post['image'] !== '' ? $post['image'] : '/images/blog.jpg', 'home_card'),
                 'title' => $post['title'],
                 'meta' => $post['published_label'],
                 'description' => $post['description'],

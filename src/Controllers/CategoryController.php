@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Classes\Errors\Contracts\ErrorHandlerInterface;
 use App\Classes\Errors\Enums\ApplicationError;
+use App\Classes\Images\ResponsiveImageService;
 use App\Classes\Pagination\Contracts\PaginatorInterface;
 use App\Classes\Sorting\Contracts\SorterInterface;
 use App\Core\Controller;
@@ -19,6 +20,7 @@ final class CategoryController extends Controller
     public function __construct(
         View $view,
         ErrorHandlerInterface $errorHandler,
+        private readonly ResponsiveImageService $responsiveImageService,
         private readonly int $postsPerPage,
         private readonly SorterInterface $categoryPostSorter,
         private readonly PaginatorInterface $categoryPaginator,
@@ -62,11 +64,15 @@ final class CategoryController extends Controller
     }
 
     /**
-     * @return array<int, array<string, string>>
+     * @return array<int, array<string, mixed>>
      */
     private function categoryPostsFromDatabase(int $categoryId, string $sort): array
     {
-        return Post::previewCardsForCategory($categoryId, $sort, $this->postsPerPage);
+        return array_map(function (array $post): array {
+            $post['image'] = $this->responsiveImageService->make($post['image'], 'category_card');
+
+            return $post;
+        }, Post::previewCardsForCategory($categoryId, $sort, $this->postsPerPage));
     }
 
     /**
