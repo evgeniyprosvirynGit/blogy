@@ -1,0 +1,16 @@
+{
+    "preset": "psr12",
+    "exclude": [
+        ".ddev",
+        "node_modules",
+        "public/build",
+        "storage",
+        "vendor"
+    ],
+    "rules": {
+        "declare_strict_types": true,
+        "ordered_imports": true,
+        "single_trait_insert_per_statement": true,
+        "no_unused_imports": true
+    }
+}

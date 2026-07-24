@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+$basePath = dirname(__DIR__);
+
+return [
+    'name' => 'Blogy',
+    'env' => $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'] ?? 'local',
+    'debug' => filter_var($_ENV['APP_DEBUG'] ?? $_SERVER['APP_DEBUG'] ?? true, FILTER_VALIDATE_BOOL),
+    'url' => $_ENV['APP_URL'] ?? $_SERVER['APP_URL'] ?? 'https://blogy.ddev.site',
+    'paths' => [
+        'base' => $basePath,
+        'templates' => $basePath . '/templates',
+        'smarty' => [
+            'compile' => $basePath . '/storage/smarty/compile',
+            'cache' => $basePath . '/storage/smarty/cache',
+        ],
+    ],
+];
