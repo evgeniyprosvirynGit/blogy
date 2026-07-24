@@ -9,6 +9,11 @@ use App\Core\RedisConnection;
 
 final readonly class RedisCacheStore implements CacheStoreInterface
 {
+    public function __construct(
+        private CachePayloadSerializer $serializer = new CachePayloadSerializer(),
+    ) {
+    }
+
     public function get(string $key): mixed
     {
         $value = RedisConnection::client()->get($key);
@@ -17,12 +22,12 @@ final readonly class RedisCacheStore implements CacheStoreInterface
             return null;
         }
 
-        return unserialize($value, ['allowed_classes' => true]);
+        return $this->serializer->deserialize($value);
     }
 
     public function set(string $key, mixed $value, ?int $ttl = null): bool
     {
-        $payload = serialize($value);
+        $payload = $this->serializer->serialize($value);
 
         if ($ttl !== null && $ttl > 0) {
             return RedisConnection::client()->setex($key, $ttl, $payload);

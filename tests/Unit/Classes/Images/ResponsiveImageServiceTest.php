@@ -24,3 +24,13 @@ it('falls back to original image when source is missing', function (): void {
         ->and($image['srcset'])->toBe('')
         ->and($image['webp_srcset'])->toBe('');
 });
+
+it('does not resolve image paths outside the public directory', function (): void {
+    $service = new ResponsiveImageService(testImagesConfig());
+
+    $image = $service->make('/../composer.json', 'home_card');
+
+    expect($image['src'])->toBe('/../composer.json')
+        ->and($image['srcset'])->toBe('')
+        ->and($image['webp_srcset'])->toBe('');
+});

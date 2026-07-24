@@ -11,6 +11,9 @@ use Throwable;
 
 final class FileErrorLogger implements ErrorLoggerInterface
 {
+    private const DIRECTORY_PERMISSIONS = 0755;
+    private const FILE_PERMISSIONS = 0644;
+
     public function __construct(
         private readonly string $errorLogPath,
         private readonly string $applicationLogPath,
@@ -45,11 +48,13 @@ final class FileErrorLogger implements ErrorLoggerInterface
             ];
         }
 
-        file_put_contents(
-            $logPath,
-            json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL,
-            FILE_APPEND,
-        );
+        $jsonPayload = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        if ($jsonPayload === false) {
+            $jsonPayload = '{"message":"Unable to encode log payload."}';
+        }
+
+        file_put_contents($logPath, $jsonPayload . PHP_EOL, FILE_APPEND | LOCK_EX);
     }
 
     private function ensureLogFileExists(string $logPath): void
@@ -57,11 +62,12 @@ final class FileErrorLogger implements ErrorLoggerInterface
         $directory = dirname($logPath);
 
         if (! is_dir($directory)) {
-            mkdir($directory, 0777, true);
+            mkdir($directory, self::DIRECTORY_PERMISSIONS, true);
         }
 
         if (! is_file($logPath)) {
             touch($logPath);
+            chmod($logPath, self::FILE_PERMISSIONS);
         }
     }
 }

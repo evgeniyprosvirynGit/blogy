@@ -8,6 +8,9 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 
 final class Database
 {
+    private const DIRECTORY_PERMISSIONS = 0755;
+    private const FILE_PERMISSIONS = 0644;
+
     private static ?Capsule $capsule = null;
 
     public static function boot(array $config): Capsule
@@ -42,15 +45,7 @@ final class Database
     private static function registerQueryLogger(Capsule $capsule): void
     {
         $logPath = dirname(__DIR__, 2) . '/storage/logs/sql.log';
-        $logDir = dirname($logPath);
-
-        if (! is_dir($logDir)) {
-            mkdir($logDir, 0777, true);
-        }
-
-        if (! is_file($logPath)) {
-            touch($logPath);
-        }
+        self::ensureWritableFile($logPath);
 
         $capsule->getConnection()->beforeExecuting(static function (string $sql, array $bindings) use ($logPath): void {
             $line = sprintf(
@@ -59,8 +54,22 @@ final class Database
                 self::interpolateQuery($sql, $bindings),
             );
 
-            file_put_contents($logPath, $line, FILE_APPEND);
+            file_put_contents($logPath, $line, FILE_APPEND | LOCK_EX);
         });
+    }
+
+    private static function ensureWritableFile(string $path): void
+    {
+        $directory = dirname($path);
+
+        if (! is_dir($directory)) {
+            mkdir($directory, self::DIRECTORY_PERMISSIONS, true);
+        }
+
+        if (! is_file($path)) {
+            touch($path);
+            chmod($path, self::FILE_PERMISSIONS);
+        }
     }
 
     /**

@@ -19,6 +19,7 @@ DEV_NOTES.md
 /storage/logs/
 /storage/smarty/cache/
 /storage/smarty/compile/
+/public/images/cache
 
 *.log
 *.tmp

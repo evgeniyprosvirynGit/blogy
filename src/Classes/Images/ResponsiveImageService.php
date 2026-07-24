@@ -6,6 +6,8 @@ namespace App\Classes\Images;
 
 final readonly class ResponsiveImageService
 {
+    private const DIRECTORY_PERMISSIONS = 0755;
+
     /**
      * @param array<string, mixed> $config
      */
@@ -25,7 +27,7 @@ final readonly class ResponsiveImageService
 
         $absoluteSourcePath = $this->absoluteSourcePath($sourcePath);
 
-        if (!is_file($absoluteSourcePath)) {
+        if ($absoluteSourcePath === null || !is_file($absoluteSourcePath)) {
             return $this->fallback($sourcePath);
         }
 
@@ -72,9 +74,24 @@ final readonly class ResponsiveImageService
         ];
     }
 
-    private function absoluteSourcePath(string $sourcePath): string
+    private function absoluteSourcePath(string $sourcePath): ?string
     {
-        return dirname(__DIR__, 3) . '/public' . $sourcePath;
+        $publicRoot = realpath(dirname(__DIR__, 3) . '/public');
+
+        if ($publicRoot === false) {
+            return null;
+        }
+
+        $candidatePath = $publicRoot . '/' . ltrim($sourcePath, '/');
+        $resolvedPath = realpath($candidatePath);
+
+        if ($resolvedPath === false) {
+            return $candidatePath;
+        }
+
+        $publicPrefix = rtrim($publicRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+        return str_starts_with($resolvedPath, $publicPrefix) ? $resolvedPath : null;
     }
 
     /**
@@ -133,7 +150,7 @@ final readonly class ResponsiveImageService
     private function ensureDirectory(string $directory): void
     {
         if (!is_dir($directory)) {
-            mkdir($directory, 0777, true);
+            mkdir($directory, self::DIRECTORY_PERMISSIONS, true);
         }
     }
 

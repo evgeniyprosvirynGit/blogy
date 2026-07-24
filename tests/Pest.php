@@ -24,11 +24,11 @@ function testView(): View
     $cachePath = $tmpBase . '/cache';
 
     if (! is_dir($compilePath)) {
-        mkdir($compilePath, 0777, true);
+        mkdir($compilePath, 0755, true);
     }
 
     if (! is_dir($cachePath)) {
-        mkdir($cachePath, 0777, true);
+        mkdir($cachePath, 0755, true);
     }
 
     $config['paths']['smarty']['compile'] = $compilePath;
