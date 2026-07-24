@@ -79,9 +79,26 @@ final class HomeController extends Controller
                     'name' => $category->name,
                     'slug' => $category->slug,
                     'description' => $category->description,
-                    'posts' => $postsByCategory[$category->id] ?? [],
+                    'posts' => self::mapHomepagePosts($postsByCategory[$category->id] ?? []),
                 ];
             })
             ->all();
+    }
+
+    /**
+     * @param array<int, array<string, string>> $posts
+     * @return array<int, array<string, string>>
+     */
+    private static function mapHomepagePosts(array $posts): array
+    {
+        return array_map(static function (array $post): array {
+            return [
+                'href' => "/post/{$post['slug']}",
+                'image' => $post['image'] !== '' ? $post['image'] : '/images/blog.jpg',
+                'title' => $post['title'],
+                'meta' => $post['published_label'],
+                'description' => $post['description'],
+            ];
+        }, $posts);
     }
 }

@@ -62,6 +62,7 @@ it('renders the category page with sorting controls and article cards', function
 
     expect($html)
         ->toContain('Design Systems')
+        ->toContain('4 articles')
         ->toContain('By publication date')
         ->toContain('By views')
         ->toContain('Building a category page that scales with editorial content')
@@ -79,6 +80,7 @@ it('renders the article page with full content and related articles', function (
         ->toContain('July 21, 2026')
         ->toContain('The article page is where the visual language of the blog either holds together or falls apart.')
         ->toContain('3 similar articles')
+        ->toContain('2,430 views')
         ->toContain('Editorial UX patterns for article archives');
 });
 

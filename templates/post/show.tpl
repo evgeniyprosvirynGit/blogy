@@ -48,7 +48,7 @@
         <section class="mt-14">
             <div class="mb-8 flex flex-col gap-2">
                 <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Keep reading</p>
-                <h2 class="text-3xl font-bold tracking-tight text-slate-900">3 similar articles</h2>
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900">{$relatedPostsCount} similar articles</h2>
             </div>
 
             <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">

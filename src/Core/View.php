@@ -13,6 +13,7 @@ final class View
     public function __construct(array $config)
     {
         $this->smarty = new Smarty();
+        $this->smarty->setEscapeHtml(true);
         $this->smarty->setTemplateDir($config['paths']['templates']);
         $this->smarty->setCompileDir($config['paths']['smarty']['compile']);
         $this->smarty->setCacheDir($config['paths']['smarty']['cache']);

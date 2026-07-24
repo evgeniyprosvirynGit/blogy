@@ -37,6 +37,7 @@ final class PostController extends Controller
                 'pageTitle' => $post['title'],
                 'post' => $post,
                 'relatedPosts' => $relatedPosts,
+                'relatedPostsCount' => count($relatedPosts),
             ]);
         } catch (Throwable $exception) {
             return $this->handleError(ApplicationError::ARTICLE_UNAVAILABLE, $exception);

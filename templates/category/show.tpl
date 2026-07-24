@@ -6,6 +6,9 @@
             <div class="mx-auto max-w-3xl space-y-4 text-center">
                 <p class="text-sm font-semibold uppercase tracking-[0.3em] text-amber-600">Blog category</p>
                 <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">{$category.name}</h1>
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+                    {$category.articleCount} articles
+                </p>
                 <p class="mx-auto max-w-2xl text-sm leading-8 text-slate-600 sm:text-base">
                     {$category.description}
                 </p>

@@ -17,21 +17,10 @@
         {if $categories|@count > 0}
             <section class="mt-12 space-y-12">
                 {foreach from=$categories item=category}
-                    {assign var=categoryPosts value=[]}
-                    {foreach from=$category.posts item=post}
-                        {$categoryPosts[]=[
-                            'href' => "/post/{$post.slug}",
-                            'image' => $post.image|default:'/images/blog.jpg',
-                            'title' => $post.title,
-                            'meta' => $post.published_label,
-                            'description' => $post.description
-                        ]}
-                    {/foreach}
-
                     {include
                         file="partials/category-section.tpl"
                         category=$category
-                        posts=$categoryPosts
+                        posts=$category.posts
                         linkLabel='All posts'
                     }
                 {/foreach}
