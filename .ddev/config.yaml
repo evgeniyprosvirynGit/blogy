@@ -12,7 +12,11 @@ database:
   version: "8.0"
 use_dns_when_possible: true
 composer_version: "2"
-web_environment: []
+web_environment:
+  - REDIS_HOST=redis
+  - REDIS_PORT=6379
+  - REDIS_SCHEME=tcp
+  - REDIS_URL=tcp://redis:6379
 web_extra_exposed_ports:
   - name: vite
     container_port: 5173
