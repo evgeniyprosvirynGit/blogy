@@ -34,7 +34,7 @@ it('provides valid post category relationships', function (): void {
     $postIds = array_column(BlogDemoData::posts(), 'id');
     $relations = BlogDemoData::postCategories();
 
-    expect($relations)->not->toBeEmpty();
+    expect($relations)->toHaveCount(11);
 
     foreach ($relations as $relation) {
         expect($relation)

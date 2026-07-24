@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Core\CacheManager;
-use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Collection;
 
 final class Category extends Model
 {
@@ -71,6 +72,11 @@ final class Category extends Model
             "homepage.categories.{$limit}",
             static fn (): Collection => self::query()
                 ->select(['id', 'name', 'slug', 'description'])
+                ->whereExists(static function (Builder $query): void {
+                    $query->selectRaw('1')
+                        ->from('post_category')
+                        ->whereColumn('post_category.category_id', 'categories.id');
+                })
                 ->orderBy('name')
                 ->limit($limit)
                 ->get(),

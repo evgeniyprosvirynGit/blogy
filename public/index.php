@@ -41,7 +41,20 @@ $redisConfig = require $basePath . '/config/redis.php';
 
 date_default_timezone_set($_ENV['APP_TIMEZONE'] ?? $_SERVER['APP_TIMEZONE'] ?? 'Asia/Tbilisi');
 
-Database::boot($databaseConfig);
+$view = new View($appConfig);
+$errorLogger = new FileErrorLogger(
+    $appConfig['paths']['logs']['error'],
+    $appConfig['paths']['logs']['application'],
+);
+$errorHandler = new TemplateErrorHandler($view, $errorLogger);
+
+try {
+    Database::boot($databaseConfig);
+} catch (\Throwable $exception) {
+    echo $errorHandler->handle(ApplicationError::DATABASE_UNAVAILABLE, $exception);
+
+    return;
+}
 
 $useRedisBackedServices = (($cacheConfig['driver'] ?? 'redis') === 'redis');
 
@@ -57,13 +70,7 @@ try {
     CacheManager::boot(new Cache(new ArrayCacheStore()), $cacheConfig);
 }
 
-$view = new View($appConfig);
 $responsiveImageService = new ResponsiveImageService($imagesConfig);
-$errorLogger = new FileErrorLogger(
-    $appConfig['paths']['logs']['error'],
-    $appConfig['paths']['logs']['application'],
-);
-$errorHandler = new TemplateErrorHandler($view, $errorLogger);
 $rateLimitStore = $useRedisBackedServices && (($rateLimitConfig['driver'] ?? 'redis') === 'redis')
     ? new RedisRateLimitStore()
     : new ArrayRateLimitStore();
@@ -87,11 +94,18 @@ $categoryController = new CategoryController(
     $view,
     $errorHandler,
     $responsiveImageService,
+    $appConfig['blog']['homepage']['default_post_image'],
     $appConfig['blog']['category_page']['posts_per_page'],
     $categoryPostSorter,
     $categoryPaginator,
 );
-$postController = new PostController($view, $errorHandler, $responsiveImageService, $relatedArticlesProvider);
+$postController = new PostController(
+    $view,
+    $errorHandler,
+    $responsiveImageService,
+    $relatedArticlesProvider,
+    $appConfig['blog']['homepage']['default_post_image'],
+);
 $router = new Router();
 
 $router->get('/', static fn (): string => $rateLimitGuard->protect('homepage', static fn (): string => $homeController->index()));

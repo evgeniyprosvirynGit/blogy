@@ -20,6 +20,7 @@ final class PostController extends Controller
         ErrorHandlerInterface $errorHandler,
         private readonly ResponsiveImageService $responsiveImageService,
         private readonly RelatedArticlesProvider $relatedArticlesProvider,
+        private readonly string $defaultPostImage,
     ) {
         parent::__construct($view, $errorHandler);
     }
@@ -27,14 +28,17 @@ final class PostController extends Controller
     public function show(string $slug): string
     {
         try {
-            $post = Post::articlePageDataBySlug($slug);
+            $post = Post::openArticlePageBySlug($slug);
 
             if ($post === null) {
                 return $this->handleError(ApplicationError::ARTICLE_NOT_FOUND);
             }
 
             $relatedPosts = $this->relatedArticlesProvider->forArticle($post);
-            $post['image'] = $this->responsiveImageService->make($post['image'], 'article_cover');
+            $post['image'] = $this->responsiveImageService->make(
+                $post['image'] !== '' ? $post['image'] : $this->defaultPostImage,
+                'article_cover',
+            );
 
             return $this->render('post/show.tpl', $this->articlePagePayload($post, $relatedPosts));
         } catch (Throwable $exception) {
@@ -64,7 +68,10 @@ final class PostController extends Controller
     private function mapRelatedPosts(array $relatedPosts): array
     {
         return array_map(function (array $post): array {
-            $post['image'] = $this->responsiveImageService->make($post['image'], 'related_card');
+            $post['image'] = $this->responsiveImageService->make(
+                $post['image'] !== '' ? $post['image'] : $this->defaultPostImage,
+                'related_card',
+            );
 
             return $post;
         }, $relatedPosts);

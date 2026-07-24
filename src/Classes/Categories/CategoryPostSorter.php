@@ -21,14 +21,24 @@ final class CategoryPostSorter implements SorterInterface
     {
         return [
             [
-                'label' => 'By publication date',
-                'value' => CategoryPostSortKey::PUBLICATION_DATE->value,
-                'href' => "/category/{$slug}?sort=" . CategoryPostSortKey::PUBLICATION_DATE->value,
+                'label' => 'Newest first',
+                'value' => CategoryPostSortKey::PUBLICATION_DATE_DESC->value,
+                'href' => "/category/{$slug}?sort=" . CategoryPostSortKey::PUBLICATION_DATE_DESC->value,
             ],
             [
-                'label' => 'By views',
-                'value' => CategoryPostSortKey::VIEWS->value,
-                'href' => "/category/{$slug}?sort=" . CategoryPostSortKey::VIEWS->value,
+                'label' => 'Oldest first',
+                'value' => CategoryPostSortKey::PUBLICATION_DATE_ASC->value,
+                'href' => "/category/{$slug}?sort=" . CategoryPostSortKey::PUBLICATION_DATE_ASC->value,
+            ],
+            [
+                'label' => 'Most viewed',
+                'value' => CategoryPostSortKey::VIEWS_DESC->value,
+                'href' => "/category/{$slug}?sort=" . CategoryPostSortKey::VIEWS_DESC->value,
+            ],
+            [
+                'label' => 'Least viewed',
+                'value' => CategoryPostSortKey::VIEWS_ASC->value,
+                'href' => "/category/{$slug}?sort=" . CategoryPostSortKey::VIEWS_ASC->value,
             ],
         ];
     }

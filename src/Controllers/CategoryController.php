@@ -21,6 +21,7 @@ final class CategoryController extends Controller
         View $view,
         ErrorHandlerInterface $errorHandler,
         private readonly ResponsiveImageService $responsiveImageService,
+        private readonly string $defaultPostImage,
         private readonly int $postsPerPage,
         private readonly SorterInterface $categoryPostSorter,
         private readonly PaginatorInterface $categoryPaginator,
@@ -75,7 +76,10 @@ final class CategoryController extends Controller
     {
         $postPage = Post::previewCardsForCategory($categoryId, $sort, $this->postsPerPage, $page);
         $postPage['items'] = array_map(function (array $post): array {
-            $post['image'] = $this->responsiveImageService->make($post['image'], 'category_card');
+            $post['image'] = $this->responsiveImageService->make(
+                $post['image'] !== '' ? $post['image'] : $this->defaultPostImage,
+                'category_card',
+            );
 
             return $post;
         }, $postPage['items']);

@@ -46,11 +46,23 @@ it('invalidates cached homepage categories after category changes', function ():
     $first = Category::forHomepage(4);
     CacheManager::instance()->put('external.key', 'keep');
 
-    Category::query()->create([
+    $category = Category::query()->create([
         'name' => 'Analytics',
         'slug' => 'analytics',
         'description' => 'Metrics and reporting.',
     ]);
+
+    $post = Post::query()->create([
+        'title' => 'Analytics article',
+        'slug' => 'analytics-article',
+        'image' => '/images/blog.jpg',
+        'description' => 'Metrics body.',
+        'content' => 'Metrics content.',
+        'views' => 20,
+        'published_at' => '2026-07-24 11:00:00',
+    ]);
+
+    $post->categories()->attach($category->id);
 
     $second = Category::forHomepage(10);
 

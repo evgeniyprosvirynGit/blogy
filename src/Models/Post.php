@@ -59,12 +59,39 @@ final class Post extends Model
         return $deleted;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
+    public static function openArticlePageBySlug(string $slug): ?array
+    {
+        $post = self::query()
+            ->select(['id', 'slug'])
+            ->where('slug', $slug)
+            ->first();
+
+        if ($post === null) {
+            return null;
+        }
+
+        self::query()->where('id', $post->id)->increment('views');
+
+        self::invalidateViewSensitiveCache($slug);
+
+        return self::articlePageDataBySlug($slug);
+    }
+
     private function invalidatePostCache(): void
     {
         CacheManager::forgetByPrefix('homepage.posts.');
         CacheManager::forgetByPrefix('category.posts.');
         CacheManager::forgetByPrefix('post.slug.');
         CacheManager::forgetByPrefix('post.related.');
+    }
+
+    private static function invalidateViewSensitiveCache(string $slug): void
+    {
+        CacheManager::forgetByPrefix("post.slug.{$slug}");
+        CacheManager::forgetByPrefix('category.posts.');
     }
 
     public static function findBySlugForArticlePage(string $slug): ?self
@@ -196,12 +223,12 @@ final class Post extends Model
      */
     public static function previewCardsForCategory(int $categoryId, string $sort = 'published_at', int $perPage = 12, int $page = 1): array
     {
-        $orderColumn = CategoryPostSortKey::fromNullable($sort)->value;
+        $sortKey = CategoryPostSortKey::fromNullable($sort);
         $page = max(1, $page);
 
         return CacheManager::remember(
-            "category.posts.{$categoryId}.{$orderColumn}.{$perPage}.{$page}",
-            static function () use ($categoryId, $orderColumn, $perPage, $page): array {
+            "category.posts.{$categoryId}.{$sortKey->value}.{$perPage}.{$page}",
+            static function () use ($categoryId, $sortKey, $perPage, $page): array {
                 $baseQuery = self::query()
                     ->select(['posts.slug', 'posts.image', 'posts.title', 'posts.description', 'posts.views', 'posts.published_at'])
                     ->join('post_category', 'post_category.post_id', '=', 'posts.id')
@@ -212,7 +239,7 @@ final class Post extends Model
                 $currentPage = min($page, $totalPages);
 
                 $items = $baseQuery
-                    ->orderByDesc("posts.{$orderColumn}")
+                    ->orderBy("posts.{$sortKey->column()}", $sortKey->direction())
                     ->orderByDesc('posts.id')
                     ->forPage($currentPage, $perPage)
                     ->get()

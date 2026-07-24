@@ -9,6 +9,7 @@ enum ApplicationError: string
     case ROUTE_NOT_FOUND = 'route_not_found';
     case HOMEPAGE_CATEGORIES_UNAVAILABLE = 'homepage_categories_unavailable';
     case HOMEPAGE_POSTS_UNAVAILABLE = 'homepage_posts_unavailable';
+    case DATABASE_UNAVAILABLE = 'database_unavailable';
     case CATEGORY_NOT_FOUND = 'category_not_found';
     case CATEGORY_UNAVAILABLE = 'category_unavailable';
     case ARTICLE_NOT_FOUND = 'article_not_found';
@@ -20,6 +21,7 @@ enum ApplicationError: string
         return match ($this) {
             self::ROUTE_NOT_FOUND, self::CATEGORY_NOT_FOUND, self::ARTICLE_NOT_FOUND => 404,
             self::RATE_LIMITED => 429,
+            self::DATABASE_UNAVAILABLE,
             self::HOMEPAGE_CATEGORIES_UNAVAILABLE,
             self::HOMEPAGE_POSTS_UNAVAILABLE,
             self::CATEGORY_UNAVAILABLE,
@@ -31,6 +33,7 @@ enum ApplicationError: string
     {
         return match ($this) {
             self::ROUTE_NOT_FOUND => 'Page not found',
+            self::DATABASE_UNAVAILABLE => 'Database unavailable',
             self::HOMEPAGE_CATEGORIES_UNAVAILABLE => 'Homepage categories unavailable',
             self::HOMEPAGE_POSTS_UNAVAILABLE => 'Homepage articles unavailable',
             self::CATEGORY_NOT_FOUND => 'Category not found',
@@ -45,6 +48,7 @@ enum ApplicationError: string
     {
         return match ($this) {
             self::ROUTE_NOT_FOUND => 'The page you requested does not exist or has been moved.',
+            self::DATABASE_UNAVAILABLE => 'The application could not connect to the database. Please try again later.',
             self::HOMEPAGE_CATEGORIES_UNAVAILABLE => 'The homepage categories could not be loaded from the database. Please try again later.',
             self::HOMEPAGE_POSTS_UNAVAILABLE => 'The homepage article previews could not be loaded from the database. Please try again later.',
             self::CATEGORY_NOT_FOUND => 'The requested category does not exist or has been removed.',

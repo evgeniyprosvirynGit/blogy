@@ -59,3 +59,14 @@ it('writes not found errors to the application log file', function (): void {
         ->and(file_get_contents($applicationLog))->toContain('"level":"warning"')
         ->and(file_get_contents($applicationLog))->toContain('"error":"route_not_found"');
 });
+
+it('renders a database unavailable error page', function (): void {
+    $html = testErrorHandler()->handle(
+        \App\Classes\Errors\Enums\ApplicationError::DATABASE_UNAVAILABLE,
+        new \RuntimeException('Connection refused'),
+    );
+
+    expect($html)
+        ->toContain('Database unavailable')
+        ->toContain('could not connect to the database');
+});
