@@ -15,47 +15,147 @@
         {if $categories|@count > 0}
             <section class="mt-12 space-y-12">
                 {foreach from=$categories item=category}
-                    <article class="space-y-6">
-                        <div class="flex flex-col gap-4 border-b border-slate-200 pb-4 md:flex-row md:items-end md:justify-between">
-                            <div class="space-y-2">
-                                <h2 class="text-3xl font-bold text-slate-900">{$category.name}</h2>
-                                <p class="max-w-2xl text-sm leading-7 text-slate-600">{$category.description}</p>
-                            </div>
-                            <a
-                                href="/category/{$category.slug}"
-                                class="inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
-                            >
-                                All posts
-                            </a>
-                        </div>
+                    {assign var=categoryPosts value=[]}
+                    {foreach from=$category.posts item=post}
+                        {$categoryPosts[]=[
+                            'href' => "/post/{$post.slug}",
+                            'image' => $post.image|default:'/images/blog.jpg',
+                            'title' => $post.title,
+                            'meta' => $post.published_at|date_format:"%b %e, %Y",
+                            'description' => $post.description
+                        ]}
+                    {/foreach}
 
-                        <div class="grid gap-6 md:grid-cols-3">
-                            {foreach from=$category.posts item=post}
-                                <article class="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
-                                        {$post.published_at|date_format:"%b %e, %Y"}
-                                    </p>
-                                    <h3 class="mt-4 text-xl font-bold text-slate-900">{$post.title}</h3>
-                                    <p class="mt-3 text-sm leading-7 text-slate-600">{$post.description}</p>
-                                    <a
-                                        href="/post/{$post.slug}"
-                                        class="mt-5 inline-flex text-sm font-semibold text-amber-700 hover:text-amber-800"
-                                    >
-                                        Read article
-                                    </a>
-                                </article>
-                            {/foreach}
-                        </div>
-                    </article>
+                    {include
+                        file="partials/category-section.tpl"
+                        category=$category
+                        posts=$categoryPosts
+                        linkLabel='All posts'
+                    }
                 {/foreach}
             </section>
         {else}
-            <section class="mt-12 rounded-[2rem] border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
-                <p class="text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">No content yet</p>
-                <h2 class="mt-4 text-3xl font-bold text-slate-900">Database is ready for blog data</h2>
-                <p class="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-                    Run the schema and seed data, then the homepage will show categories with the latest posts automatically.
-                </p>
+            <section class="mt-12 space-y-12">
+                {assign var=demoCategories value=[
+                    [
+                        'name' => 'Category 1',
+                        'slug' => 'category-1',
+                        'posts' => [
+                            [
+                                'href' => '/post/category-1-article-1',
+                                'image' => '/images/blog.jpg',
+                                'title' => 'Category 1 Article 1',
+                                'meta' => 'Demo Post 1',
+                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
+                            ],
+                            [
+                                'href' => '/post/category-1-article-2',
+                                'image' => '/images/blogs.jpg',
+                                'title' => 'Category 1 Article 2',
+                                'meta' => 'Demo Post 2',
+                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
+                            ],
+                            [
+                                'href' => '/post/category-1-article-3',
+                                'image' => '/images/images.jpeg',
+                                'title' => 'Category 1 Article 3',
+                                'meta' => 'Demo Post 3',
+                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
+                            ]
+                        ]
+                    ],
+                    [
+                        'name' => 'Category 2',
+                        'slug' => 'category-2',
+                        'posts' => [
+                            [
+                                'href' => '/post/category-2-article-1',
+                                'image' => '/images/blogs.jpg',
+                                'title' => 'Category 2 Article 1',
+                                'meta' => 'Demo Post 1',
+                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
+                            ],
+                            [
+                                'href' => '/post/category-2-article-2',
+                                'image' => '/images/images.jpeg',
+                                'title' => 'Category 2 Article 2',
+                                'meta' => 'Demo Post 2',
+                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
+                            ],
+                            [
+                                'href' => '/post/category-2-article-3',
+                                'image' => '/images/blog.jpg',
+                                'title' => 'Category 2 Article 3',
+                                'meta' => 'Demo Post 3',
+                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
+                            ]
+                        ]
+                    ],
+                    [
+                        'name' => 'Category 3',
+                        'slug' => 'category-3',
+                        'posts' => [
+                            [
+                                'href' => '/post/category-3-article-1',
+                                'image' => '/images/images.jpeg',
+                                'title' => 'Category 3 Article 1',
+                                'meta' => 'Demo Post 1',
+                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
+                            ],
+                            [
+                                'href' => '/post/category-3-article-2',
+                                'image' => '/images/blog.jpg',
+                                'title' => 'Category 3 Article 2',
+                                'meta' => 'Demo Post 2',
+                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
+                            ],
+                            [
+                                'href' => '/post/category-3-article-3',
+                                'image' => '/images/blogs.jpg',
+                                'title' => 'Category 3 Article 3',
+                                'meta' => 'Demo Post 3',
+                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
+                            ]
+                        ]
+                    ],
+                    [
+                        'name' => 'Category 4',
+                        'slug' => 'category-4',
+                        'posts' => [
+                            [
+                                'href' => '/post/category-4-article-1',
+                                'image' => '/images/blog.jpg',
+                                'title' => 'Category 4 Article 1',
+                                'meta' => 'Demo Post 1',
+                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
+                            ],
+                            [
+                                'href' => '/post/category-4-article-2',
+                                'image' => '/images/blogs.jpg',
+                                'title' => 'Category 4 Article 2',
+                                'meta' => 'Demo Post 2',
+                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
+                            ],
+                            [
+                                'href' => '/post/category-4-article-3',
+                                'image' => '/images/images.jpeg',
+                                'title' => 'Category 4 Article 3',
+                                'meta' => 'Demo Post 3',
+                                'description' => 'Temporary homepage card layout for the future category feed. Real posts will replace these placeholders after seeding.'
+                            ]
+                        ]
+                    ]
+                ]}
+
+                {foreach from=$demoCategories item=category}
+                    {include
+                        file="partials/category-section.tpl"
+                        category=$category
+                        posts=$category.posts
+                        eyebrow='Category'
+                        linkLabel='Посмотреть все'
+                    }
+                {/foreach}
             </section>
         {/if}
     </main>
