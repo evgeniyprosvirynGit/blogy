@@ -1,15 +1,17 @@
 {extends file="layouts/main.tpl"}
 
 {block name=content}
-    <main class="mx-auto max-w-6xl px-6 py-16">
-        <section class="space-y-6 border-b border-slate-200 pb-10">
-            <p class="text-sm font-semibold uppercase tracking-[0.3em] text-amber-600">Simple PHP Blog</p>
-            <h1 class="max-w-4xl text-5xl font-extrabold tracking-tight text-slate-900 sm:text-6xl">
-                {$pageTitle}
-            </h1>
-            <p class="max-w-2xl text-lg leading-8 text-slate-600">
-                Blog homepage bootstrap is ready. Categories and latest posts will appear here as soon as the database is seeded.
-            </p>
+    <main class="home-page mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+        <section class="home-page__hero rounded-[2rem] px-6 py-12 sm:px-8 sm:py-14">
+            <div class="max-w-3xl space-y-5">
+                <p class="text-sm font-semibold uppercase tracking-[0.3em] text-amber-600">Simple PHP Blog</p>
+                <h1 class="max-w-4xl text-5xl font-extrabold tracking-tight text-slate-900 sm:text-6xl">
+                    {$pageTitle}
+                </h1>
+                <p class="max-w-2xl text-lg leading-8 text-slate-600">
+                    Curated categories and article previews arranged as a clean editorial archive. Real content will replace these demo entries after seeding.
+                </p>
+            </div>
         </section>
 
         {if $categories|@count > 0}
@@ -38,8 +40,9 @@
             <section class="mt-12 space-y-12">
                 {assign var=demoCategories value=[
                     [
-                        'name' => 'Category 1',
-                        'slug' => 'category-1',
+                        'name' => 'Design Systems',
+                        'slug' => 'design-systems',
+                        'description' => 'Layouts, UI patterns, and content presentation ideas for structured editorial pages.',
                         'posts' => [
                             [
                                 'href' => '/post/category-1-article-1',
@@ -65,8 +68,9 @@
                         ]
                     ],
                     [
-                        'name' => 'Category 2',
-                        'slug' => 'category-2',
+                        'name' => 'Frontend Engineering',
+                        'slug' => 'frontend-engineering',
+                        'description' => 'Implementation notes, component patterns, and browser-facing engineering articles.',
                         'posts' => [
                             [
                                 'href' => '/post/category-2-article-1',
@@ -92,8 +96,9 @@
                         ]
                     ],
                     [
-                        'name' => 'Category 3',
-                        'slug' => 'category-3',
+                        'name' => 'Content Strategy',
+                        'slug' => 'content-strategy',
+                        'description' => 'Editorial structure, archive management, and article discovery patterns.',
                         'posts' => [
                             [
                                 'href' => '/post/category-3-article-1',
@@ -119,8 +124,9 @@
                         ]
                     ],
                     [
-                        'name' => 'Category 4',
-                        'slug' => 'category-4',
+                        'name' => 'Product Thinking',
+                        'slug' => 'product-thinking',
+                        'description' => 'Decision-making, product communication, and feature-shaping write-ups.',
                         'posts' => [
                             [
                                 'href' => '/post/category-4-article-1',
